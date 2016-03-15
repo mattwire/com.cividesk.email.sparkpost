@@ -30,6 +30,13 @@ Installation instructions
   * enter the API key created above and click 'Save and Send test email'
   * check the on-screen message for any error you would need to resolve
 
+Requirements
+============
+
+This extension requires:
+* CiviCRM 4.4, 4.6 or higher
+* PHP version 5.4 or higher, with the curl extension enabled
+
 Show your support!
 ==================
 

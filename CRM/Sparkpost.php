@@ -54,8 +54,7 @@ class CRM_Sparkpost {
     }
 
     // Deal with the campaign setting
-    if ($campaign = CRM_Sparkpost::getSetting('campaign')) {
-      $params['campaign_ids'] = $campaign;
+    if (($path =='transmissions') && ($campaign = CRM_Sparkpost::getSetting('campaign'))) {
       $content['campaign_id'] = $campaign;
     }
 
@@ -72,8 +71,12 @@ class CRM_Sparkpost {
 
     if (!empty($content)) {
       if (strpos($path, '/') !== false) {
+        // ie. webhook/id
+        // This is a modify operation so use PUT
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
       } else {
+        // ie. webhook, transmission
+        // This is a create operation so use POST
         curl_setopt($ch, CURLOPT_POST, TRUE);
       }
       curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($content, JSON_UNESCAPED_SLASHES));

@@ -132,9 +132,9 @@ class CRM_Admin_Form_Setting_Sparkpost extends CRM_Admin_Form_Setting {
         // Define parameters for our webhook
         $my_webhook = array(
           'name' => 'CiviCRM (com.cividesk)',
-          'target' => CRM_Utils_System::url('civicrm/sparkpost/callback', NULL, TRUE),
+          'target' => CRM_Utils_System::url('civicrm/sparkpost/callback', NULL, TRUE, NULL, FALSE, TRUE),
           'auth_type' => 'none',
-          'events' => array('delivery', 'bounce', 'spam_complaint', 'policy_rejection'), // Click and open tracking are still done by CiviCRM
+          'events' => array('bounce', 'spam_complaint', 'policy_rejection'), // Click and open tracking are still done by CiviCRM
         );
         // Has this webhook already been created?
         $webhook_id = FALSE;

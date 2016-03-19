@@ -26,7 +26,8 @@ Installation instructions
   * create and verify your sending domain(s) at: https://app.sparkpost.com/account/sending-domains. Within CiviCRM, sending email adresses are managed at:
     * Administer >> Communications >> Organization Address and Contact Info,
     * and Administer >> CiviMail >> From Email Address.
-  * So if you define 'info@my-nonprofit.org' as a sending address in CiviCRM, you would need to create and verify the domain 'my-nonprofit.org' in SparkPost.
+
+    So if you define 'info@my-nonprofit.org' as a sending address in CiviCRM, you would need to create and verify the domain 'my-nonprofit.org' in SparkPost.
 
   * create an API key at: https://app.sparkpost.com/account/credentials
     * ATTENTION: the API key you create should at minimum be granted the following persmissions: Transmissions (Read/Write), Sending Domains (Read/Write), Event Webhooks (Read/Write), Metrics (Read-only) and Suppression Lists (Read/Write).

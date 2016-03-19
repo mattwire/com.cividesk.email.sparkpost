@@ -116,7 +116,7 @@ class CRM_Admin_Form_Setting_Sparkpost extends CRM_Admin_Form_Setting {
       }
       if ( !$response->results || !$response->results->status || !$response->results->status->ownership_verified) {
         $url = 'https://app.sparkpost.com/account/sending-domains';
-        CRM_Core_Session::setStatus(ts('The domain %1 is not verified. Please make sure you follow verifications instructions at <a href="%2">%2</a>.',
+        CRM_Core_Session::setStatus(ts('The domain \'%1\' is not created or not verified. Please make sure you follow instructions at <a href="%2">%2</a>.',
                                  array(1 => $domain, 2 => $url)), ts('SparkPost errors'), 'errors');
       } else {
         CRM_Core_Session::setStatus(ts('The domain %1 is ready to send.', array(1 => $domain)), ts('SparkPost status'), 'info');

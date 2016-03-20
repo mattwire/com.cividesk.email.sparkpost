@@ -83,27 +83,28 @@ class CRM_Sparkpost {
     }
     $data = curl_exec($ch);
     if (curl_errno($ch)) {
-      throw new Exception('Sparkpost curl error: ', curl_getinfo($ch, CURLINFO_HTTP_CODE));
+      throw new Exception('Sparkpost curl error: ', curl_error($ch));
     }
+    $curl_info = curl_getinfo($ch);
     curl_close($ch);
 
     // Treat errors if any in the response ...
     $response = json_decode($data);
     if ($response->errors) {
       $error = reset($response->errors);
-      switch($error->message) {
-        // First the trivial cases
-        case 'Forbidden.' :
-          throw new Exception("Sparkpost error: $error->message Check that the API key is valid.");
-        case 'Unauthorized.' :
-          throw new Exception("Sparkpost error: $error->message Check that the API key is authorized for url: $path");
+      // See issue #5: http_code is more dicriminating than $error->message
+      // https://support.sparkpost.com/customer/en/portal/articles/2140916-extended-error-codes
+      switch($curl_info['http_code']) {
+        case 401 :
+          throw new Exception("Sparkpost error: Unauthorized. Check that the API key is valid, and allows IP: $curl_info[local_ip].");
+        case 403 :
+          throw new Exception("Sparkpost error: Permission denied. Check that the API key is authorized for request $curl_info[url].");
+        case 404 :
+          throw new Exception("Sparkpost error: Invalid request. Check that request $curl_info[url] is valid.");
+        case 420 :
+          throw new Exception("Sparkpost error: Sending limits exceeded. Check your limits in the Sparkpost console.");
         default:
-          // Else aggregate all error messages
-          $messages = array();
-          foreach ($response->errors as $error) {
-            $messages[] = $error->message;
-          }
-          throw new Exception('Sparkpost error(s): ' . implode(' ; ', $messages));
+          throw new Exception("Sparkpost error: HTTP return code $curl_info[http_code]. Check https://support.sparkpost.com/customer/en/portal/articles/2140916-extended-error-codes for interpretation.");
       }
     }
 

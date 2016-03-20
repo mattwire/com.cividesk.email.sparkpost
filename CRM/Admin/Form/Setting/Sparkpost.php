@@ -113,11 +113,13 @@ class CRM_Admin_Form_Setting_Sparkpost extends CRM_Admin_Form_Setting {
         $response = CRM_Sparkpost::call("sending-domains/$domain");
       } catch (Exception $e) {
         CRM_Core_Session::setStatus(ts('Could not check status for domain %1 (Exception %2).', array(1 => $domain, 2=>$e->getMessage())), ts('SparkPost errors'), 'error');
+        return;
       }
       if ( !$response->results || !$response->results->status || !$response->results->status->ownership_verified) {
         $url = 'https://app.sparkpost.com/account/sending-domains';
         CRM_Core_Session::setStatus(ts('The domain \'%1\' is not created or not verified. Please make sure you follow instructions at <a href="%2">%2</a>.',
                                  array(1 => $domain, 2 => $url)), ts('SparkPost errors'), 'errors');
+        return;
       } else {
         CRM_Core_Session::setStatus(ts('The domain %1 is ready to send.', array(1 => $domain)), ts('SparkPost status'), 'info');
       }
@@ -128,6 +130,7 @@ class CRM_Admin_Form_Setting_Sparkpost extends CRM_Admin_Form_Setting {
           $response = CRM_Sparkpost::call("webhooks");
         } catch (Exception $e) {
           CRM_Core_Session::setStatus(ts('Could not list webhooks (%1).', array(1 => $e->getMessage())), ts('SparkPost errors'), 'error');
+          return;
         }
         // Define parameters for our webhook
         $my_webhook = array(
@@ -148,9 +151,11 @@ class CRM_Admin_Form_Setting_Sparkpost extends CRM_Admin_Form_Setting {
           $response = CRM_Sparkpost::call('webhooks' . ($webhook_id ? "/$webhook_id" : ''), array(), $my_webhook);
         } catch (Exception $e) {
           CRM_Core_Session::setStatus(ts('Could not install webhook (%1).', array(1 => $e->getMessage())), ts('SparkPost errors'), 'error');
+          return;
         }
         if (!$response->results || !$response->results->id) {
           CRM_Core_Session::setStatus(ts('Could not install/refresh webhook.'), ts('SparkPost errors'), 'error');
+          return;
         } else {
           CRM_Core_Session::setStatus(ts('Webhook has been installed or refreshed.'), ts('SparkPost status'), 'info');
         }

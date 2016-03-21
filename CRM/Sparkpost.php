@@ -96,7 +96,7 @@ class CRM_Sparkpost {
       // https://support.sparkpost.com/customer/en/portal/articles/2140916-extended-error-codes
       switch($curl_info['http_code']) {
         case 401 :
-          throw new Exception("Sparkpost error: Unauthorized. Check that the API key is valid, and allows IP: $curl_info[local_ip].");
+          throw new Exception("Sparkpost error: Unauthorized. Check that the API key is valid, and allows IP $curl_info[local_ip].");
         case 403 :
           throw new Exception("Sparkpost error: Permission denied. Check that the API key is authorized for request $curl_info[url].");
         case 404 :

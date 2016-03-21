@@ -11,6 +11,8 @@ It was designed with the following goals and/or features:
 * have a 'service provider' mode in which the same SparkPost account can be used for multiple clients
 * accurate processing of bounces with in-depth analysis and translation of all bounce codes
 
+It sends both transactional and CiviMail emails through the SparkPost service, but processes bounces only with CiviMai-originated emails (same as CiviCRM). We are planning to extend bounce processing to transational emails in the short term.
+
 Installation instructions
 =========================
 
@@ -37,7 +39,7 @@ Installation instructions
 * Setup the SparkPost email extension
   * go to Administer >> System Settings >> Outbound Email (SparkPost)
   * enter the API key created above and click 'Save and Send test email'
-  * check the on-screen message for any error you would need to resolve
+  * check the on-screen messages for any error you would need to resolve
 
 Requirements
 ============
@@ -49,12 +51,12 @@ This extension requires:
 Show your support!
 ==================
 
-Development of this extension was fully self-funded by Cividesk and equated to about 25 hours of work.
+Development of this extension was fully self-funded by Cividesk and equated to about 30 hours of work.
 
 You can show your support and appreciation for our work by making a donation at https://www.cividesk.com/pay and indicating 'SparkPost support' as the invoice id.
 
-Suggested donation amounts are _$40 for end-users_, and _$40 per client_ using this extension for service providers. With these suggested amounts, we would need 75 donations just to recoup our development costs.
+Suggested donation amounts are _$40 for end-users_, and _$40 per client_ using this extension for service providers. With these suggested amounts, we would need 90 donations just to recoup our development costs.
 
-These donations will fund maintainance of this extension over time and production of other extensions in the future.
+These donations will fund maintainance and updates for this extension, as well as production of other extensions in the future.
 
 Thanks!

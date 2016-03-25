@@ -112,13 +112,14 @@ class CRM_Admin_Form_Setting_Sparkpost extends CRM_Admin_Form_Setting {
       try {
         $response = CRM_Sparkpost::call("sending-domains/$domain");
       } catch (Exception $e) {
-        CRM_Core_Session::setStatus(ts('Could not check status for domain %1 (Exception %2).', array(1 => $domain, 2=>$e->getMessage())), ts('SparkPost errors'), 'error');
+        CRM_Core_Session::setStatus(ts('Could not check status for domain %1 (Exception %2).',
+          array(1 => $domain, 2 => $e->getMessage())), ts('SparkPost errors'), 'error');
         return;
       }
-      if ( !$response->results || !$response->results->status || !$response->results->status->ownership_verified) {
+      if (!$response->results || !$response->results->status || !$response->results->status->ownership_verified) {
         $url = 'https://app.sparkpost.com/account/sending-domains';
         CRM_Core_Session::setStatus(ts('The domain \'%1\' is not created or not verified. Please make sure you follow instructions at <a href="%2">%2</a>.',
-                                 array(1 => $domain, 2 => $url)), ts('SparkPost errors'), 'errors');
+          array(1 => $domain, 2 => $url)), ts('SparkPost errors'), 'errors');
         return;
       } else {
         CRM_Core_Session::setStatus(ts('The domain %1 is ready to send.', array(1 => $domain)), ts('SparkPost status'), 'info');
@@ -137,7 +138,8 @@ class CRM_Admin_Form_Setting_Sparkpost extends CRM_Admin_Form_Setting {
           'name' => 'CiviCRM (com.cividesk)',
           'target' => CRM_Utils_System::url('civicrm/sparkpost/callback', NULL, TRUE, NULL, FALSE, TRUE),
           'auth_type' => 'none',
-          'events' => array('bounce', 'spam_complaint', 'policy_rejection'), // Click and open tracking are still done by CiviCRM
+          // Just bounce-related events as click and open tracking are still done by CiviCRM
+          'events' => array('bounce', 'spam_complaint', 'policy_rejection'),
         );
         // Has this webhook already been created?
         $webhook_id = FALSE;
@@ -180,9 +182,16 @@ class CRM_Admin_Form_Setting_Sparkpost extends CRM_Admin_Form_Setting {
       );
       $mailer = Mail::factory('Sparkpost', array());
 
-      $errorScope = CRM_Core_TemporaryErrorScope::ignoreException();
-      $result = $mailer->send($toEmail, $headers, $message);
-      unset($errorScope);
+      $currentVer = CRM_Core_BAO_Domain::version();
+      if (version_compare($currentVer, '4.5') < 0) {
+        CRM_Core_Error::ignoreException();
+        $result = $mailer->send($toEmail, $headers, $message);
+        CRM_Core_Error::setCallback();
+      } else {
+        $errorScope = CRM_Core_TemporaryErrorScope::ignoreException();
+        $result = $mailer->send($toEmail, $headers, $message);
+        unset($errorScope);
+      }
 
       if (!is_a($result, 'PEAR_Error')) {
         CRM_Core_Session::setStatus($testMailStatusMsg . ts('Your %1 settings are correct. A test email has been sent to your email address.', array(1 => 'SparkPost')), ts("Mail Sent"), "success");

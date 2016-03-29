@@ -64,8 +64,13 @@ class Mail_Sparkpost extends Mail {
     if (!is_array($recipients)) {
       $recipients = array($recipients);
     }
-    foreach ($recipients as $recipient) {
-      // Format is: a plain email address
+    foreach ($recipients as $recipientString) {
+      // CiviCRM passes multiple recipients as a string (e.g., "foo@bar.com,
+      // bar@baz.com") but SparkPost needs them separated out.
+      $individualRecipients = explode(',', $recipientString);
+
+      foreach ($individualRecipients as $recipient) {
+        // Format is: a plain email address
       if (substr($recipient, -1) != '>') {
         $request_body['recipients'][] = array(
           'address' => array(
@@ -88,6 +93,7 @@ class Mail_Sparkpost extends Mail {
             'email' => $email,
           )
         );
+      }
       }
     }
 

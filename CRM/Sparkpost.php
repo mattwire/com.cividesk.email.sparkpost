@@ -104,7 +104,7 @@ class CRM_Sparkpost {
         case 420 :
           throw new Exception("Sparkpost error: Sending limits exceeded. Check your limits in the Sparkpost console.");
         default:
-          throw new Exception("Sparkpost error: HTTP return code $curl_info[http_code]. Check https://support.sparkpost.com/customer/en/portal/articles/2140916-extended-error-codes for interpretation.");
+          throw new Exception("Sparkpost error: HTTP return code $curl_info[http_code], Sparkpost error code $error->code ($error->message: $error->description). Check https://support.sparkpost.com/customer/en/portal/articles/2140916-extended-error-codes for interpretation.");
       }
     }
 

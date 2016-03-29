@@ -70,6 +70,8 @@ class Mail_Sparkpost extends Mail {
       $individualRecipients = explode(',', $recipientString);
 
       foreach ($individualRecipients as $recipient) {
+        $recipient = trim($recipient);
+
         // Format is: a plain email address
       if (substr($recipient, -1) != '>') {
         $request_body['recipients'][] = array(

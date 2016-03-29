@@ -61,6 +61,33 @@ class Mail_Sparkpost extends Mail {
     }
 
     // Capture the recipients
+    $request_body['recipients'] = $this->formatRecipients($recipients);
+
+    // Construct the rfc822 encapsulated email
+    $request_body['content'] = array(
+      'email_rfc822' => $textHeaders . "\r\n\r\n" . $body,
+    );
+
+    try {
+      $result = CRM_Sparkpost::call('transmissions', array(), $request_body);
+    } catch (Exception $e) {
+      return new PEAR_Error($e->getMessage());
+    }
+    return $result;
+  }
+
+  /**
+   * Prepares a recipient list in the format SparkPost expects.
+   *
+   * @param mixed $recipients
+   *   List of recipients, either as a string or an array.
+   *   @see Mail->send().
+   * @return array
+   *   An array of recipients in the format that the SparkPost API expects.
+   */
+  function formatRecipients($recipients) {
+    $result = array();
+
     if (!is_array($recipients)) {
       $recipients = array($recipients);
     }
@@ -74,7 +101,7 @@ class Mail_Sparkpost extends Mail {
 
         // Format is: a plain email address
         if (substr($recipient, -1) != '>') {
-          $request_body['recipients'][] = array(
+          $result[] = array(
             'address' => array(
               'email' => $recipient,
             )
@@ -90,7 +117,7 @@ class Mail_Sparkpost extends Mail {
           if (substr($name, 0, 1) == '"') {
             $name = substr($name, 0, -1);
           }
-          $request_body['recipients'][] = array(
+          $result[] = array(
             'address' => array(
               'name' => $name,
               'email' => $email,
@@ -100,16 +127,7 @@ class Mail_Sparkpost extends Mail {
       }
     }
 
-    // Construct the rfc822 encapsulated email
-    $request_body['content'] = array(
-      'email_rfc822' => $textHeaders . "\r\n\r\n" . $body,
-    );
-
-    try {
-      $result = CRM_Sparkpost::call('transmissions', array(), $request_body);
-    } catch (Exception $e) {
-      return new PEAR_Error($e->getMessage());
-    }
     return $result;
   }
+
 }

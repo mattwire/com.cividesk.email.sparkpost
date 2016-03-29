@@ -50,6 +50,11 @@ This extension requires:
 * CiviCRM 4.4, 4.6 or higher
 * PHP version 5.4 or higher, with the curl extension enabled
 
+Limitations / known issues
+==========================
+
+As of April 2016, a free SparkPost account allow you to send 100,000 emails per month, but with a quota of 10,000 emails per day. CiviCRM does not have an elegant way to deal with the errors SparkPost will return if you exceed this limit. So if there is any chance you might send more than 10,000 emails in any 24 hours period, please upgrade to a paid SparkPost account.
+
 Show your support!
 ==================
 

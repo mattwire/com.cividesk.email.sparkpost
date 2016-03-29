@@ -61,35 +61,7 @@ class Mail_Sparkpost extends Mail {
     }
 
     // Capture the recipients
-    if (!is_array($recipients)) {
-      $recipients = array($recipients);
-    }
-    foreach ($recipients as $recipient) {
-      // Format is: a plain email address
-      if (substr($recipient, -1) != '>') {
-        $request_body['recipients'][] = array(
-          'address' => array(
-            'email' => $recipient,
-          )
-        );
-      } else {
-        // Address is supposed to be RFC822 compliant, but since
-        // CRM_Utils_Mail::formatRFC822Email() is doing a shitty job
-        // by not using quotes, we cannot use a regexp to decapsulate
-        $pos = strrpos($recipient, '<');
-        $email = substr($recipient, $pos+1, -1);
-        $name = trim(substr($recipient, 0, $pos));
-        if (substr($name, 0, 1) == '"') {
-          $name = substr($name, 0, -1);
-        }
-        $request_body['recipients'][] = array(
-          'address' => array(
-            'name' => $name,
-            'email' => $email,
-          )
-        );
-      }
-    }
+    $request_body['recipients'] = $this->formatRecipients($recipients);
 
     // Construct the rfc822 encapsulated email
     $request_body['content'] = array(
@@ -103,4 +75,59 @@ class Mail_Sparkpost extends Mail {
     }
     return $result;
   }
+
+  /**
+   * Prepares a recipient list in the format SparkPost expects.
+   *
+   * @param mixed $recipients
+   *   List of recipients, either as a string or an array.
+   *   @see Mail->send().
+   * @return array
+   *   An array of recipients in the format that the SparkPost API expects.
+   */
+  function formatRecipients($recipients) {
+    $result = array();
+
+    if (!is_array($recipients)) {
+      $recipients = array($recipients);
+    }
+    foreach ($recipients as $recipientString) {
+      // CiviCRM passes multiple recipients as a string (e.g., "foo@bar.com,
+      // bar@baz.com") but SparkPost needs them separated out.
+      $individualRecipients = explode(',', $recipientString);
+
+      foreach ($individualRecipients as $recipient) {
+        $recipient = trim($recipient);
+
+        // Format is: a plain email address
+        if (substr($recipient, -1) != '>') {
+          $result[] = array(
+            'address' => array(
+              'email' => $recipient,
+            )
+          );
+        }
+        else {
+          // Address is supposed to be RFC822 compliant, but since
+          // CRM_Utils_Mail::formatRFC822Email() is doing a shitty job
+          // by not using quotes, we cannot use a regexp to decapsulate
+          $pos = strrpos($recipient, '<');
+          $email = substr($recipient, $pos + 1, -1);
+          $name = trim(substr($recipient, 0, $pos));
+          if (substr($name, 0, 1) == '"') {
+            $name = substr($name, 0, -1);
+          }
+          $result[] = array(
+            'address' => array(
+              'name' => $name,
+              'email' => $email,
+            )
+          );
+        }
+      }
+    }
+
+    return $result;
+  }
+
 }

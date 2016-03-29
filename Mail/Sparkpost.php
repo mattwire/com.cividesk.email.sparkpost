@@ -73,29 +73,30 @@ class Mail_Sparkpost extends Mail {
         $recipient = trim($recipient);
 
         // Format is: a plain email address
-      if (substr($recipient, -1) != '>') {
-        $request_body['recipients'][] = array(
-          'address' => array(
-            'email' => $recipient,
-          )
-        );
-      } else {
-        // Address is supposed to be RFC822 compliant, but since
-        // CRM_Utils_Mail::formatRFC822Email() is doing a shitty job
-        // by not using quotes, we cannot use a regexp to decapsulate
-        $pos = strrpos($recipient, '<');
-        $email = substr($recipient, $pos+1, -1);
-        $name = trim(substr($recipient, 0, $pos));
-        if (substr($name, 0, 1) == '"') {
-          $name = substr($name, 0, -1);
+        if (substr($recipient, -1) != '>') {
+          $request_body['recipients'][] = array(
+            'address' => array(
+              'email' => $recipient,
+            )
+          );
         }
-        $request_body['recipients'][] = array(
-          'address' => array(
-            'name' => $name,
-            'email' => $email,
-          )
-        );
-      }
+        else {
+          // Address is supposed to be RFC822 compliant, but since
+          // CRM_Utils_Mail::formatRFC822Email() is doing a shitty job
+          // by not using quotes, we cannot use a regexp to decapsulate
+          $pos = strrpos($recipient, '<');
+          $email = substr($recipient, $pos + 1, -1);
+          $name = trim(substr($recipient, 0, $pos));
+          if (substr($name, 0, 1) == '"') {
+            $name = substr($name, 0, -1);
+          }
+          $request_body['recipients'][] = array(
+            'address' => array(
+              'name' => $name,
+              'email' => $email,
+            )
+          );
+        }
       }
     }
 

@@ -90,7 +90,7 @@ class CRM_Sparkpost {
 
     // Treat errors if any in the response ...
     $response = json_decode($data);
-    if ($response->errors) {
+    if (isset($response->errors) && is_array($response->errors)) {
       $error = reset($response->errors);
       // See issue #5: http_code is more dicriminating than $error->message
       // https://support.sparkpost.com/customer/en/portal/articles/2140916-extended-error-codes

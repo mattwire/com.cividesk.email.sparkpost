@@ -35,6 +35,8 @@ class CRM_Admin_Form_Setting_Sparkpost extends CRM_Admin_Form_Setting {
    * @return void
    */
   public function buildQuickForm() {
+    // Check dependencies and display error messages
+    sparkpost_check_dependencies();
 
     $this->addElement('password', 'apiKey', ts('API Key'), '', TRUE);
 

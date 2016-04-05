@@ -11,9 +11,11 @@ It was designed with the following goals and/or features:
 * have a 'service provider' mode in which the same SparkPost account can be used for multiple clients
 * accurate processing of bounces with in-depth analysis and translation of all bounce codes
 
-It sends both transactional and CiviMail emails through the SparkPost service, but processes bounces only with CiviMail-originated emails (same as CiviCRM). We are planning to extend bounce processing to transactional emails in the short term.
+It sends both transactional and CiviMail emails through the SparkPost service. Bounces are processed through a callback (no need for an email account dedicated to bounce processing), but CiviCRM only processes bounces for CiviMail-originated emails. We are planning to extend bounce processing to transactional emails in the short term.
 
 Opens and click-throughs as still tracked by CiviCRM as there is no added-value in having these tracked by SparkPost.
+
+
 
 Installation instructions
 =========================

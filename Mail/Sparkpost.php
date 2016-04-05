@@ -86,48 +86,36 @@ class Mail_Sparkpost extends Mail {
    *   An array of recipients in the format that the SparkPost API expects.
    */
   function formatRecipients($recipients) {
-    $result = array();
-
+    // CiviCRM passes the recipients as an array of string, each string potentially containing
+    // multiple addresses in either abbreviated or full RFC822 format, e.g.
+    // $recipients:
+    //   [0] nicolas@cividesk.com, "Nicolas Ganivet" <nicolas@cividesk.com>
+    //   [1] "Ganivet, Nicolas" <nicolas@cividesk.com>
+    //   [2] ""<nicolas@cividesk.com>,<nicolas@cividesk.com>
+    // [0] is the most common case, [1] note the , inside the quoted name, [2] are edge cases
+    // cf. CRM_Utils_Mail::send() lines 161, 171 and 174 (assignments to $to variable)
     if (!is_array($recipients)) {
       $recipients = array($recipients);
     }
+    $result = array();
+
     foreach ($recipients as $recipientString) {
-      // CiviCRM passes multiple recipients as a string (e.g., "foo@bar.com,
-      // bar@baz.com") but SparkPost needs them separated out.
-      $individualRecipients = explode(',', $recipientString);
+      // Regexp tested at https://regex101.com with the $recipients examples above
+      // Will only capture the email addresses of recipients (we do not need the name)
+      preg_match_all('/(?:"[^"]*"[\s]*<([^>]*)>|([^",<>]+))[,\s]*/', $recipientString, $matches, PREG_SET_ORDER);
 
-      foreach ($individualRecipients as $recipient) {
-        $recipient = trim($recipient);
-
-        // Format is: a plain email address
-        if (substr($recipient, -1) != '>') {
-          $result[] = array(
-            'address' => array(
-              'email' => $recipient,
-            )
-          );
-        }
-        else {
-          // Address is supposed to be RFC822 compliant, but since
-          // CRM_Utils_Mail::formatRFC822Email() is doing a shitty job
-          // by not using quotes, we cannot use a regexp to decapsulate
-          $pos = strrpos($recipient, '<');
-          $email = substr($recipient, $pos + 1, -1);
-          $name = trim(substr($recipient, 0, $pos));
-          if (substr($name, 0, 1) == '"') {
-            $name = substr($name, 0, -1);
-          }
-          $result[] = array(
-            'address' => array(
-              'name' => $name,
-              'email' => $email,
-            )
-          );
-        }
+      foreach ($matches as $match) {
+        // Filters the results array on trim function, eliminating empty group matches
+        $match = array_filter($match, 'trim');
+        $result[] = array(
+          'address' => array(
+            // Because of the filter, last element of $match is matched email address
+            'email' => end($match),
+          )
+        );
       }
     }
 
     return $result;
   }
-
 }

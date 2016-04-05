@@ -41,7 +41,7 @@ class CRM_Sparkpost {
   /**
    * Calls the SparkPost REST API v1
    * @param $path    Method path
-   * @param $params  Method paramaters (translated as GET arguments)
+   * @param $params  Method parameters (translated as GET arguments)
    * @param $content Method content (translated as POST arguments)
    *
    * @see https://developers.sparkpost.com/api/
@@ -91,6 +91,13 @@ class CRM_Sparkpost {
     // Treat errors if any in the response ...
     $response = json_decode($data);
     if (isset($response->errors) && is_array($response->errors)) {
+      // Log this error for debugging purposes
+      sparkpost_log('==== ERROR in CRM_Sparkpost::call() ====');
+      sparkpost_log(print_r($response, TRUE));
+      sparkpost_log(print_r($curl_info, TRUE));
+      sparkpost_log(print_r($content, TRUE));
+      sparkpost_log(PHP_EOL);
+
       $error = reset($response->errors);
       // See issue #5: http_code is more dicriminating than $error->message
       // https://support.sparkpost.com/customer/en/portal/articles/2140916-extended-error-codes

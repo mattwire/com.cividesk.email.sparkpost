@@ -108,14 +108,14 @@ class Mail_Sparkpost extends Mail {
 
       foreach ($matches as $match) {
         $address = array();
-        if (!empty($match['mailbox']) && !empty($match['host'])) {
-          $address['email'] =  $match['mailbox'] . '@' . $match['host'];
+        if (!empty($match->mailbox) && !empty($match->host)) {
+          $address['email'] =  $match->mailbox . '@' . $match->host;
         }
-        if (!empty($match['personal'])) {
-          if ((substr($match['personal'], 0, 1) == '"') && (substr($match['personal'], -1) == '"')) {
-            $address['name'] = substr($match['personal'], 1, -1);
+        if (!empty($match->personal)) {
+          if ((substr($match->personal, 0, 1) == '"') && (substr($match->personal, -1) == '"')) {
+            $address['name'] = substr($match->personal, 1, -1);
           } else {
-            $address['name'] = $match['personal'];
+            $address['name'] = $match->personal;
           }
         }
         if (!empty($address['email'])) {

@@ -26,6 +26,9 @@
  * Outbound mailer class which calls the SparkPost APIs (SMTP with TLS does not work)
  * @see packages/Mail/smtp.php
  */
+
+require_once 'Mail/RFC822.php';
+
 class Mail_Sparkpost extends Mail {
   /**
    * Send an email
@@ -89,10 +92,10 @@ class Mail_Sparkpost extends Mail {
     // CiviCRM passes the recipients as an array of string, each string potentially containing
     // multiple addresses in either abbreviated or full RFC822 format, e.g.
     // $recipients:
-    //   [0] nicolas@cividesk.com, "Nicolas Ganivet" <nicolas@cividesk.com>
+    //   [0] nicolas@cividesk.com, Nicolas Ganivet <nicolas@cividesk.com>
     //   [1] "Ganivet, Nicolas" <nicolas@cividesk.com>
     //   [2] ""<nicolas@cividesk.com>,<nicolas@cividesk.com>
-    // [0] is the most common case, [1] note the , inside the quoted name, [2] are edge cases
+    // [0] are the most common cases, [1] note the , inside the quoted name, [2] are edge cases
     // cf. CRM_Utils_Mail::send() lines 161, 171 and 174 (assignments to $to variable)
     if (!is_array($recipients)) {
       $recipients = array($recipients);
@@ -100,19 +103,24 @@ class Mail_Sparkpost extends Mail {
     $result = array();
 
     foreach ($recipients as $recipientString) {
-      // Regexp tested at https://regex101.com with the $recipients examples above
-      // Will only capture the email addresses of recipients (we do not need the name)
-      preg_match_all('/(?:"[^"]*"[\s]*<([^>]*)>|([^",<>]+))[,\s]*/', $recipientString, $matches, PREG_SET_ORDER);
+      // Best is to use the PEAR::Mail package to decapsulate as they have a class just for that!
+      $matches = Mail_RFC822::parseAddressList($recipientString);
 
       foreach ($matches as $match) {
-        // Filters the results array on trim function, eliminating empty group matches
-        $match = array_filter($match, 'trim');
-        $result[] = array(
-          'address' => array(
-            // Because of the filter, last element of $match is matched email address
-            'email' => end($match),
-          )
-        );
+        $address = array();
+        if (!empty($match['mailbox']) && !empty($match['host'])) {
+          $address['email'] =  $match['mailbox'] . '@' . $match['host'];
+        }
+        if (!empty($match['personal'])) {
+          if ((substr($match['personal'], 0, 1) == '"') && (substr($match['personal'], -1) == '"')) {
+            $address['name'] = substr($match['personal'], 1, -1);
+          } else {
+            $address['name'] = $match['personal'];
+          }
+        }
+        if (!empty($address['email'])) {
+          $result[] = array('address' => $address);
+        }
       }
     }
 

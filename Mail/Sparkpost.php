@@ -54,8 +54,8 @@ class Mail_Sparkpost extends Mail {
 
     $request_body = array(
       'options' => array(
-        'open-tracking' => FALSE,  // This will be done by CiviCRM
-        'click-tracking' => FALSE, // ditto
+        'open_tracking' => FALSE,  // This will be done by CiviCRM
+        'click_tracking' => FALSE, // ditto
       ),
       'recipients' => array(),
     );

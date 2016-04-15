@@ -174,5 +174,6 @@ function sparkpost_check_dependencies($display = TRUE) {
 }
 
 function sparkpost_log($message) {
-  file_put_contents(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'sparkpost_log', $message . PHP_EOL, FILE_APPEND);
+  $config = CRM_Core_Config::singleton();
+  file_put_contents($config->configAndLogDir . 'sparkpost_log', $message . PHP_EOL, FILE_APPEND);
 }

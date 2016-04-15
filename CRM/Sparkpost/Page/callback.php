@@ -67,7 +67,7 @@ class CRM_Sparkpost_Page_callback extends CRM_Core_Page {
         // Sanity checks
         if ( !in_array($event->type, array('bounce', 'spam_complaint', 'policy_rejection'))
              || ($event->campaign_id && ($event->campaign_id != CRM_Sparkpost::getSetting('campaign')))
-             || (!$event->metadata || !($civimail_bounce_id = CRM_Utils_Array('X-CiviMail-Bounce', $event->metadata)))
+             || (!$event->rcpt_meta || !($civimail_bounce_id = $event->rcpt_meta->{'X-CiviMail-Bounce'}))
            ) {
           continue;
         }

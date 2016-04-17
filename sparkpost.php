@@ -114,6 +114,17 @@ function sparkpost_civicrm_navigationMenu( &$param ) {
 }
 
 /**
+ * Implementation of hook_civicrm_alterContent
+ *
+ * Replace the link to Outbound Email Settings in the administration console
+ */
+function sparkpost_civicrm_alterContent( &$content, $context, $tplName, &$object ) {
+  if ($tplName == 'CRM/Admin/Page/Admin.tpl') {
+    $content = str_replace('civicrm/admin/setting/smtp', 'civicrm/admin/setting/sparkpost', $content);
+  }
+}
+
+/**
  * Implementation of hook_civicrm_alterMailer
  */
 // Don't know why it does not autoload ...

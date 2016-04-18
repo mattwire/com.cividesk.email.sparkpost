@@ -94,11 +94,21 @@ class CRM_Sparkpost {
       // Log this error for debugging purposes
       sparkpost_log('==== ERROR in CRM_Sparkpost::call() ====');
       sparkpost_log(print_r($response, TRUE));
-      sparkpost_log(print_r($curl_info, TRUE));
       sparkpost_log(print_r($content, TRUE));
       sparkpost_log(PHP_EOL);
 
       $error = reset($response->errors);
+
+      // Did the email bounce because one of the recipients is on the SparkPost rejection list?
+      // https://support.sparkpost.com/customer/portal/articles/2110621-sending-messages-to-recipients-on-the-exclusion-list
+      if ($curl_info['http_code'] == 400) {
+        // AFIAK there can be multiple recipients and we don't know which caused the bounce, so cannot really do anything
+        if ($error->code == 1901) {
+          throw new Exception("Sparkpost error: at least one recipient is on the Sparkpost Exclusion List for non-transactional emails.");
+        } elseif ($error->code == 1902) {
+          throw new Exception("Sparkpost error: at least one recipient is on the Sparkpost Exclusion List for transactional emails.");
+        }
+      }
       // See issue #5: http_code is more dicriminating than $error->message
       // https://support.sparkpost.com/customer/en/portal/articles/2140916-extended-error-codes
       switch($curl_info['http_code']) {

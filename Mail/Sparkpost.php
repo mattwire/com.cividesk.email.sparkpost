@@ -100,7 +100,7 @@ class Mail_Sparkpost extends Mail {
     //   [1] "Ganivet, Nicolas" <nicolas@cividesk.com>
     //   [2] ""<nicolas@cividesk.com>,<nicolas@cividesk.com>
     // [0] are the most common cases, [1] note the , inside the quoted name, [2] are edge cases
-    // cf. CRM_Utils_Mail::send() lines 161, 171 and 174 (assignments to $to variable)
+    // cf. CRM_Utils_Mail::send() lines 161, 171 and 174 (assignments to the $to variable)
     if (!is_array($recipients)) {
       $recipients = array($recipients);
     }

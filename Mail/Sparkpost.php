@@ -102,10 +102,9 @@ class Mail_Sparkpost extends Mail {
     // Attach mailing name as campaign_id for sparkpost
     if (!empty($sp['metadata'])) {
       $metadata = explode(CRM_Core_Config::singleton()->verpSeparator, $sp['metadata']['X-CiviMail-Bounce']);
-      $mailing_id = CRM_Core_DAO::getFieldValue('CRM_Mailing_DAO_MailingJob', $metadata[1], 'mailing_id');
-      $mailing_name = CRM_Core_DAO::getFieldValue('CRM_Mailing_DAO_Mailing', $mailing_id, 'name');
+      list($mailing_id, $mailing_name) = self::getMailing($metadata[1]);
 
-      if ($mailing_name) {
+      if ($mailing_name && $mailing_id) {
         $sp['campaign_id'] = $mailing_name . '(' . $mailing_id . ')';
       }
     }
@@ -208,5 +207,15 @@ class Mail_Sparkpost extends Mail {
     }
 
     return $result;
+  }
+  
+  static function getMailing($jobId) {
+    if (!$jobId) {
+      return;
+    }
+
+    $mailing_id = CRM_Core_DAO::getFieldValue('CRM_Mailing_DAO_MailingJob', $jobId, 'mailing_id');
+    $mailing_name = CRM_Core_DAO::getFieldValue('CRM_Mailing_DAO_Mailing', $mailing_id, 'name');
+    return array($mailing_id, $mailing_name);
   }
 }

@@ -106,7 +106,7 @@ class Mail_Sparkpost extends Mail {
       $mailing_name = CRM_Core_DAO::getFieldValue('CRM_Mailing_DAO_Mailing', $mailing_id, 'name');
 
       if ($mailing_name) {
-        $sp['campaign_id'] = $mailing_name;
+        $sp['campaign_id'] = $mailing_name . '(' . $mailing_id . ')';
       }
     }
 

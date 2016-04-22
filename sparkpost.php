@@ -184,6 +184,15 @@ function sparkpost_check_dependencies($display = TRUE) {
   return $messages;
 }
 
+/**
+ * Implementation of hook_civicrm_alterSettingsFolders
+ *
+ * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_alterSettingsFolders
+ */
+function sparkpost_civicrm_alterSettingsFolders(&$metaDataFolders = NULL) {
+  _sparkpost_civix_civicrm_alterSettingsFolders($metaDataFolders);
+}
+
 function sparkpost_log($message) {
   $config = CRM_Core_Config::singleton();
   file_put_contents($config->configAndLogDir . 'sparkpost_log', $message . PHP_EOL, FILE_APPEND);

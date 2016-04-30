@@ -38,7 +38,8 @@ class CRM_Admin_Form_Setting_Sparkpost extends CRM_Admin_Form_Setting {
     // Check dependencies and display error messages
     sparkpost_check_dependencies();
 
-    $this->addElement('password', 'apiKey', ts('API Key'), '', TRUE);
+    $this->add('password', 'apiKey', ts('API Key'), '', TRUE);
+    $this->addYesNo('useBackupMailer', ts('Use backup mailer'));
 
     $this->_testButtonName = $this->getButtonName('refresh', 'test');
 
@@ -89,6 +90,7 @@ class CRM_Admin_Form_Setting_Sparkpost extends CRM_Admin_Form_Setting {
 
     $formValues = $this->controller->exportValues($this->_name);
     CRM_Sparkpost::setSetting('apiKey', $formValues['apiKey']);
+    CRM_Sparkpost::setSetting('useBackupMailer', $formValues['useBackupMailer']);
 
     $buttonName = $this->controller->getButtonName();
     // check if test button
@@ -116,7 +118,7 @@ class CRM_Admin_Form_Setting_Sparkpost extends CRM_Admin_Form_Setting {
       } catch (Exception $e) {
         if (strpos($e->getMessage(), 'Invalid request') !== FALSE) {
           $url = "https://app.sparkpost.com/account/sending-domains";
-          CRM_Core_Session::setStatus(ts('Domain %1 is not created in Sparkpost and not verified. Make sure you follow instructions at <a href="%2">%2</a>.',
+          CRM_Core_Session::setStatus(ts('Domain %1 is not created and not verified in Sparkpost. Please follow instructions at <a href="%2">%2</a>.',
             array(1 => $domain, 2 => $url)), ts('SparkPost error'), 'error');
           return;
         } else {
@@ -127,7 +129,7 @@ class CRM_Admin_Form_Setting_Sparkpost extends CRM_Admin_Form_Setting {
       }
       if (!$response->results || !$response->results->status || !$response->results->status->ownership_verified) {
         $url = 'https://app.sparkpost.com/account/sending-domains';
-        CRM_Core_Session::setStatus(ts('The domain \'%1\' is not verified. Make sure you follow instructions at <a href="%2">%2</a>.',
+        CRM_Core_Session::setStatus(ts('The domain \'%1\' is not verified. Please follow instructions at <a href="%2">%2</a>.',
           array(1 => $domain, 2 => $url)), ts('SparkPost error'), 'errors');
         return;
       } else {

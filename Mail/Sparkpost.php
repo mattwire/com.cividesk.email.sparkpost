@@ -30,6 +30,17 @@
 require_once 'Mail/RFC822.php';
 
 class Mail_Sparkpost extends Mail {
+  // Variables used to redirect outgoing email to a backup mailer
+  var $backupMailer;
+  static $unavailable = false; // static because each hook_alterMailer creates a different mailer object
+
+  /**
+   * Sets a backup mailer
+   */
+  function setBackupMailer($mailer) {
+    $this->backupMailer = $mailer;
+  }
+
   /**
    * Send an email
    */
@@ -39,6 +50,14 @@ class Mail_Sparkpost extends Mail {
       if(!defined('CIVICRM_MAIL_LOG_AND SEND')) {
         return true;
       }
+    }
+
+    // Has the SparkPost service failed before in this mailing?
+    if (Mail_Sparkpost::$unavailable) {
+      if (CRM_Sparkpost::getSetting('useBackupMailer') && $this->backupMailer) {
+        return $this->backupMailer->send($recipients, $headers, $body);
+      }
+      return new PEAR_Error("The SparkPost service is unavailable due to a sending error, and the backup mailer is not enabled or not configured.");
     }
 
     // Sanitize and prepare headers for transmission
@@ -78,6 +97,11 @@ class Mail_Sparkpost extends Mail {
     try {
       $result = CRM_Sparkpost::call('transmissions', array(), $request_body);
     } catch (Exception $e) {
+      if ($e->getCode() == CRM_Sparkpost::FALLBACK) {
+        // Let's redirect this and all further sends to the backup mailer
+        Mail_Sparkpost::$unavailable = true;
+        return $this->send($recipients, $headers, $body);
+      }
       return new PEAR_Error($e->getMessage());
     }
     return $result;

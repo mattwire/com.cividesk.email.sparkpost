@@ -40,7 +40,7 @@ class CRM_Sparkpost {
     );
     $settings = array_merge(
       $defaults,
-      CRM_Core_BAO_Setting::getItem( CRM_Sparkpost::SPARKPOST_EXTENSION_SETTINGS, $setting)
+      CRM_Core_BAO_Setting::getItem(CRM_Sparkpost::SPARKPOST_EXTENSION_SETTINGS)
     );
     if (!empty($setting)) {
       return CRM_Utils_Array::value($setting, $settings);

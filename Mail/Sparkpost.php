@@ -54,7 +54,7 @@ class Mail_Sparkpost extends Mail {
 
     // Has the SparkPost service failed before in this mailing?
     if (Mail_Sparkpost::$unavailable) {
-      if (CRM_Sparkpost::getSetting('useBackupMailer') && $this->backupMailer) {
+      if (CRM_Sparkpost::getSetting('sparkpost_useBackupMailer') && $this->backupMailer) {
         return $this->backupMailer->send($recipients, $headers, $body);
       }
       return new PEAR_Error("The SparkPost service is unavailable due to a sending error, and the backup mailer is not enabled or not configured.");

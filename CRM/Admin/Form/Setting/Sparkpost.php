@@ -38,8 +38,8 @@ class CRM_Admin_Form_Setting_Sparkpost extends CRM_Admin_Form_Setting {
     // Check dependencies and display error messages
     sparkpost_check_dependencies();
 
-    $this->add('password', 'apiKey', ts('API Key'), '', TRUE);
-    $this->addYesNo('useBackupMailer', ts('Use backup mailer'));
+    $this->add('password', 'sparkpost_apiKey', ts('API Key'), '', TRUE);
+    $this->addYesNo('sparkpost_useBackupMailer', ts('Use backup mailer'));
 
     $this->_testButtonName = $this->getButtonName('refresh', 'test');
 
@@ -71,8 +71,8 @@ class CRM_Admin_Form_Setting_Sparkpost extends CRM_Admin_Form_Setting {
    *   list of errors to be posted back to the form
    */
   public static function formRule($fields) {
-    if (empty($fields['apiKey'])) {
-      $errors['apiKey'] = 'You must enter an API key.';
+    if (empty($fields['sparkpost_apiKey'])) {
+      $errors['sparkpost_apiKey'] = 'You must enter an API key.';
     }
     return empty($errors) ? TRUE : $errors;
   }
@@ -89,8 +89,8 @@ class CRM_Admin_Form_Setting_Sparkpost extends CRM_Admin_Form_Setting {
     CRM_Utils_System::flushCache();
 
     $formValues = $this->controller->exportValues($this->_name);
-    CRM_Sparkpost::setSetting('apiKey', $formValues['apiKey']);
-    CRM_Sparkpost::setSetting('useBackupMailer', $formValues['useBackupMailer']);
+    CRM_Sparkpost::setSetting('sparkpost_apiKey', $formValues['sparkpost_apiKey']);
+    CRM_Sparkpost::setSetting('sparkpost_useBackupMailer', $formValues['sparkpost_useBackupMailer']);
 
     $buttonName = $this->controller->getButtonName();
     // check if test button

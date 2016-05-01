@@ -8,17 +8,17 @@
         <fieldset>
             <legend>{ts}SparkPost Configuration{/ts}</legend>
             <table class="form-layout-compressed">
-                <tr class="crm-sparkpost-form-block-apiKey">
-                    <td class="label">{$form.apiKey.label}</td>
-                    <td>{$form.apiKey.html}<br  />
+                <tr class="crm-sparkpost-form-block-sparkpost_apiKey">
+                    <td class="label">{$form.sparkpost_apiKey.label}</td>
+                    <td>{$form.sparkpost_apiKey.html}<br  />
                         <span class="description">{ts}You can create API keys at:{/ts}
                             <a href="https://app.sparkpost.com/account/credentials" target="_blank">https://app.sparkpost.com/account/credentials</a>
                         </span>
                     </td>
                 </tr>
-                <tr class="crm-sparkpost-form-block-useBackupMailer">
-                    <td class="label">{$form.useBackupMailer.label}</td>
-                    <td>{$form.useBackupMailer.html}<br  />
+                <tr class="crm-sparkpost-form-block-sparkpost_useBackupMailer">
+                    <td class="label">{$form.sparkpost_useBackupMailer.label}</td>
+                    <td>{$form.sparkpost_useBackupMailer.html}<br  />
                         <span class="description">{ts 1=$smtpURL}You can define a backup mailer <a href='%1'>here</a>.{/ts}
                             {ts}It will be used if Sparkpost cannot send emails (unverified sending domain, sending limits exceeded, ...).{/ts}
                         </span>

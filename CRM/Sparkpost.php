@@ -28,6 +28,10 @@ class CRM_Sparkpost {
   const FALLBACK = 1;
 
   static function setSetting($setting, $value) {
+    // Encrypt API key before storing in database
+    if ($setting == 'sparkpost_apiKey') {
+      $value = CRM_Utils_Crypt::encrypt($value);
+    }
     return CRM_Core_BAO_Setting::setItem(
       $value,
       CRM_Sparkpost::SPARKPOST_EXTENSION_SETTINGS,
@@ -35,13 +39,28 @@ class CRM_Sparkpost {
   }
 
   static function getSetting($setting = NULL) {
+    // Merge in default values for settings
     $defaults = array(
-      'useBackupMailer' => false,
+      'sparkpost_useBackupMailer' => false,
     );
     $settings = array_merge(
       $defaults,
       CRM_Core_BAO_Setting::getItem(CRM_Sparkpost::SPARKPOST_EXTENSION_SETTINGS)
     );
+    // Adjust setting names for 4.7 compatibility
+    if (array_key_exists('apiKey', $settings) && !array_key_exists('sparkpost_apiKey', $settings)) {
+      $settings['sparkpost_apiKey'] = $settings['apiKey'];
+      CRM_Sparkpost::setSetting('sparkpost_apiKey', $settings['sparkpost_apiKey']);
+    }
+    // Decrypt API key if it is encrypted, encrypt it otherwise (v1.0 did not encrypt it)
+    if ($key = CRM_Utils_array::value('sparkpost_apiKey', $settings)) {
+      if (base_64_decode($key, TRUE)) {
+        $settings['sparkpost_apiKey'] = CRM_Utils_Crypt::decrypt($key);
+      } else {
+        CRM_Sparkpost::setSetting('sparkpost_apiKey', CRM_Utils_Crypt::encrypt($key));
+      }
+    }
+    // And finaly returm what was asked for ...
     if (!empty($setting)) {
       return CRM_Utils_Array::value($setting, $settings);
     } else {
@@ -59,7 +78,7 @@ class CRM_Sparkpost {
    */
   static function call($path, $params = array(), $content = array()) {
     // Get the API key from the settings
-    $authorization = CRM_Sparkpost::getSetting('apiKey');
+    $authorization = CRM_Sparkpost::getSetting('sparkpost_apiKey');
     if (empty($authorization)) {
       throw new Exception('No API key defined for SparkPost');
     }

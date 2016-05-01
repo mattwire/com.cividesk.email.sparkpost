@@ -85,7 +85,7 @@ class CRM_Sparkpost {
     }
 
     // Deal with the campaign setting
-    if (($path =='transmissions') && ($campaign = CRM_Sparkpost::getSetting('campaign'))) {
+    if (($path =='transmissions') && ($campaign = CRM_Sparkpost::getSetting('sparkpost_campaign'))) {
       $content['campaign_id'] = $campaign;
     }
 

@@ -136,7 +136,7 @@ class CRM_Admin_Form_Setting_Sparkpost extends CRM_Admin_Form_Setting {
         CRM_Core_Session::setStatus(ts('The domain %1 is ready to send.', array(1 => $domain)), ts('SparkPost status'), 'info');
       }
 
-      $campaign = CRM_Sparkpost::getSetting('campaign');
+      $campaign = CRM_Sparkpost::getSetting('sparkpost_campaign');
       if (empty($campaign)) {
         // Get the id of (potentially) existing webhook
         try {

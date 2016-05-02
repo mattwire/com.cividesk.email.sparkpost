@@ -54,7 +54,7 @@ class CRM_Sparkpost {
     }
     // Decrypt API key if it is encrypted, encrypt it otherwise (v1.0 did not encrypt it)
     if ($key = CRM_Utils_array::value('sparkpost_apiKey', $settings)) {
-      if (base_64_decode($key, TRUE)) {
+      if (base64_decode($key, TRUE)) {
         $settings['sparkpost_apiKey'] = CRM_Utils_Crypt::decrypt($key);
       } else {
         // The setSettings function will encrypt before saving

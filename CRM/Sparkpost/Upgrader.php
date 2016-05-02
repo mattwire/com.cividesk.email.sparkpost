@@ -62,6 +62,28 @@ class CRM_Sparkpost_Upgrader extends CRM_Sparkpost_Upgrader_Base {
   }
 
   /**
+   * Database upgrade for version 1.1.
+   *
+   * Encrypt SparkPost API key.
+   *
+   * @return TRUE on success
+   * @throws Exception
+   */
+  public function upgrade_1101() {
+    $this->ctx->log->info('Applying update 1101 - Encrypt SparkPost API key');
+
+    $key = civicrm_api3('Setting', 'getvalue', array(
+      'name' => 'sparkpost_apiKey',
+    ));
+    // don't try to encrypt the key if none has been set
+    if ($key) {
+      // The setSettings function will encrypt before saving
+      CRM_Sparkpost::setSetting('sparkpost_apiKey', $key);
+    }
+    return TRUE;
+  }
+
+  /**
    * Example: Run an external SQL script.
    *
    * @return TRUE on success

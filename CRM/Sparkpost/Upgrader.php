@@ -37,18 +37,29 @@ class CRM_Sparkpost_Upgrader extends CRM_Sparkpost_Upgrader_Base {
   }
 
   /**
-   * Example: Run a couple simple queries.
+   * Database upgrade for version 1.1.
+   *
+   * Provides a setting name less prone to naming collisions.
    *
    * @return TRUE on success
    * @throws Exception
-   *
-  public function upgrade_4200() {
-    $this->ctx->log->info('Applying update 4200');
-    CRM_Core_DAO::executeQuery('UPDATE foo SET bar = "whiz"');
-    CRM_Core_DAO::executeQuery('DELETE FROM bang WHERE willy = wonka(2)');
-    return TRUE;
-  } // */
+   */
+  public function upgrade_1100() {
+    $this->ctx->log->info('Applying update 1100 - Rename apiKey setting');
+    $setting = new CRM_Core_BAO_Setting();
+    $setting->name = 'apiKey';
+    $setting->find();
+    if ($setting->count() > 1) {
+      CRM_Core_Error::fatal('Could not update setting name due to naming collisions; more than one setting is named apiKey.');
+      return FALSE;
+    }
+    while ($setting->fetch()) {
+      $setting->name = 'sparkpost_apiKey';
+      $setting->save();
+    }
 
+    return TRUE;
+  }
 
   /**
    * Example: Run an external SQL script.

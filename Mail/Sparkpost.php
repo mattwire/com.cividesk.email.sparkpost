@@ -106,6 +106,7 @@ class Mail_Sparkpost extends Mail {
 
       if ($mailing_name && $mailing_id) {
         $sp['campaign_id'] = $mailing_name . '(' . $mailing_id . ')';
+        $sp['campaign_id'] = substr($sp['campaign_id'], 0, 64);
       }
     }
 

@@ -132,7 +132,8 @@ class Mail_Sparkpost extends Mail {
 
     foreach ($recipients as $recipientString) {
       // Best is to use the PEAR::Mail package to decapsulate as they have a class just for that!
-      $matches = Mail_RFC822::parseAddressList($recipientString);
+      $rfc822 = new Mail_RFC822($recipientString);
+      $matches = $rfc822->parseAddressList();
 
       foreach ($matches as $match) {
         $address = array();

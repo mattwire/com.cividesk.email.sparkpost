@@ -39,14 +39,17 @@ class CRM_Sparkpost {
   }
 
   static function getSetting($setting = NULL) {
-    // Merge in default values for settings
-    $defaults = array(
+    // Start with the default values for settings
+    $settings = array(
       'sparkpost_useBackupMailer' => false,
     );
-    $settings = array_merge(
-      $defaults,
-      CRM_Core_BAO_Setting::getItem(CRM_Sparkpost::SPARKPOST_EXTENSION_SETTINGS)
-    );
+    // Merge the settings defined in DB (no more groups in 4.7, so has to be one by one ...)
+    foreach (array('sparkpost_apiKey', 'sparkpost_useBackupMailer') as $name) {
+      $value = CRM_Core_BAO_Setting::getItem(CRM_Sparkpost::SPARKPOST_EXTENSION_SETTINGS, $name);
+      if (!is_null($value)) {
+        $settings[$name] = $value;
+      }
+    }
     // Adjust setting names for 4.7 compatibility
     if (array_key_exists('apiKey', $settings) && !array_key_exists('sparkpost_apiKey', $settings)) {
       $settings['sparkpost_apiKey'] = $settings['apiKey'];

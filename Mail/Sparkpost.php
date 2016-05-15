@@ -71,13 +71,18 @@ class Mail_Sparkpost extends Mail {
     }
     list($from, $textHeaders) = $headerElements;
 
+    // Default options: do not track opens and clicks as CiviCRM does it
     $request_body = array(
       'options' => array(
         'open_tracking' => FALSE,  // This will be done by CiviCRM
         'click_tracking' => FALSE, // ditto
-      ),
-      'recipients' => array(),
     );
+    // Should we send via a dedicated IP pool?
+    $ip_pool = CRM_Sparkpost::getSetting('sparkpost_ipPool');
+    if (!empty($ip_pool)) {
+      $request_body['options']['ip_pool'] = $ip_pool;
+    }
+    // Is this a CiviMail mailing or a transactional email?
     if (CRM_Utils_Array::value('X-CiviMail-Bounce', $headers)) {
       // Insert CiviMail header in the outgoing email's metadata
       $request_body['metadata'] = array('X-CiviMail-Bounce' => CRM_Utils_Array::value("X-CiviMail-Bounce", $headers));

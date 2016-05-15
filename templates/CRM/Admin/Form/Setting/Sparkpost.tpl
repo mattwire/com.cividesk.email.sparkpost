@@ -16,6 +16,12 @@
                         </span>
                     </td>
                 </tr>
+                <tr class="crm-sparkpost-form-block-sparkpost_ipPool">
+                    <td class="label">{$form.sparkpost_ipPool.label}</td>
+                    <td>{$form.sparkpost_ipPool.html}<br  />
+                        <span class="description">{ts}Only used if you have one or more dedicated IP addresses at SparkPost.{/ts}</span>
+                    </td>
+                </tr>
                 <tr class="crm-sparkpost-form-block-sparkpost_useBackupMailer">
                     <td class="label">{$form.sparkpost_useBackupMailer.label}</td>
                     <td>{$form.sparkpost_useBackupMailer.html}<br  />

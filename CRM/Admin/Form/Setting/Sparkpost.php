@@ -39,6 +39,7 @@ class CRM_Admin_Form_Setting_Sparkpost extends CRM_Admin_Form_Setting {
     sparkpost_check_dependencies();
 
     $this->add('password', 'sparkpost_apiKey', ts('API Key'), '', TRUE);
+    $this->add('text', 'sparkpost_ipPool', ts('IP pool'));
     $this->addYesNo('sparkpost_useBackupMailer', ts('Use backup mailer'));
 
     $this->_testButtonName = $this->getButtonName('refresh', 'test');
@@ -89,8 +90,9 @@ class CRM_Admin_Form_Setting_Sparkpost extends CRM_Admin_Form_Setting {
     CRM_Utils_System::flushCache();
 
     $formValues = $this->controller->exportValues($this->_name);
-    CRM_Sparkpost::setSetting('sparkpost_apiKey', $formValues['sparkpost_apiKey']);
-    CRM_Sparkpost::setSetting('sparkpost_useBackupMailer', $formValues['sparkpost_useBackupMailer']);
+    foreach (array('sparkpost_apiKey', 'sparkpost_ipPool', 'sparkpost_useBackupMailer') as $name) {
+      CRM_Sparkpost::setSetting($name, $formValues[$name]);
+    }
 
     $buttonName = $this->controller->getButtonName();
     // check if test button

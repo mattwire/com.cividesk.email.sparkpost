@@ -50,6 +50,8 @@ class CRM_Sparkpost {
         $settings[$name] = $value;
       }
     }
+    // Decrypt API key before returning
+    $settings['sparkpost_apiKey'] = CRM_Utils_Crypt::decrypt($settings['sparkpost_apiKey']);
     // And finaly returm what was asked for ...
     if (!empty($setting)) {
       return CRM_Utils_Array::value($setting, $settings);

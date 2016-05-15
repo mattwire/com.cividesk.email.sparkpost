@@ -76,6 +76,7 @@ class Mail_Sparkpost extends Mail {
       'options' => array(
         'open_tracking' => FALSE,  // This will be done by CiviCRM
         'click_tracking' => FALSE, // ditto
+      )
     );
     // Should we send via a dedicated IP pool?
     $ip_pool = CRM_Sparkpost::getSetting('sparkpost_ipPool');

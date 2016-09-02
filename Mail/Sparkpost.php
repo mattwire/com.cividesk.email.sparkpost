@@ -29,6 +29,10 @@
 
 require_once 'Mail/RFC822.php';
 
+use SparkPost\SparkPost;
+use GuzzleHttp\Client;
+use Http\Adapter\Guzzle6\Client as GuzzleAdapter;
+
 class Mail_Sparkpost extends Mail {
   /**
    * Send an email
@@ -41,46 +45,97 @@ class Mail_Sparkpost extends Mail {
       }
     }
 
+    $api_key = CRM_Sparkpost::getSetting('apiKey');
+
+    if (empty($api_key)) {
+      throw new Exception('No API key defined for SparkPost');
+    }
+
+    require_once __DIR__ . '/../vendor/autoload.php';
+
+    $httpClient = new GuzzleAdapter(new Client());
+    $sparky = new SparkPost($httpClient, ['key' => $api_key, 'async' => FALSE]);
+
     // Sanitize and prepare headers for transmission
     if (!is_array($headers)) {
       return PEAR::raiseError('$headers must be an array');
     }
+
     $this->_sanitizeHeaders($headers);
     $headerElements = $this->prepareHeaders($headers);
+
     if (is_a($headerElements, 'PEAR_Error')) {
       return $headerElements;
     }
+
     list($from, $textHeaders) = $headerElements;
 
-    $request_body = array(
+    $sp = array(
+      'content' => array(),
       'options' => array(
-        'open_tracking' => FALSE,  // This will be done by CiviCRM
+        'open_tracking' => FALSE, // This will be done by CiviCRM
         'click_tracking' => FALSE, // ditto
       ),
-      'recipients' => array(),
     );
+
     if (CRM_Utils_Array::value('X-CiviMail-Bounce', $headers)) {
       // Insert CiviMail header in the outgoing email's metadata
-      $request_body['metadata'] = array('X-CiviMail-Bounce' => CRM_Utils_Array::value("X-CiviMail-Bounce", $headers));
-    } else {
+      $sp['metadata'] = array('X-CiviMail-Bounce' => CRM_Utils_Array::value("X-CiviMail-Bounce", $headers));
+    }
+    else {
       // Mark the email as transactional for SparkPost
-      $request_body['options']['transactional'] = true;
+      $sp['options']['transactional'] = TRUE;
     }
 
-    // Capture the recipients
-    $request_body['recipients'] = $this->formatRecipients($recipients);
+    $sp['recipients'] = $this->formatRecipients($recipients);
 
-    // Construct the rfc822 encapsulated email
-    $request_body['content'] = array(
-      'email_rfc822' => $textHeaders . "\r\n\r\n" . $body,
-    );
+    if (preg_match('/<style\w+type="text\/css">/', $body)) {
+      $body = preg_replace('/<style\w+type="text\/css">/', '<html><head>/<style type="text/css">', $body);
+      $body = preg_replace('/<\/style>/', '</head></style>', $body);
+    }
+
+    # $sp['inlineCss'] = TRUE;
+    $sp['content']['email_rfc822'] = $textHeaders . "\r\n\r\n" . $body;
 
     try {
-      $result = CRM_Sparkpost::call('transmissions', array(), $request_body);
-    } catch (Exception $e) {
-      return new PEAR_Error($e->getMessage());
+      $promise = $sparky->transmissions->post($sp);
     }
-    return $result;
+    catch (Exception $e) {
+      $body = $e->getBody();
+
+      foreach ($body['errors'] as $key => $val) {
+        // "recipient address suppressed due to customer policy"
+        if ($val['code'] == 1902) {
+          $email = $sp['recipients'][0]['address']['email'];
+          $status = $sparky->request('GET', 'suppression-list/' . $email);
+          sparkpost_log(print_r($status->getBody(), 1));
+        }
+        else {
+          sparkpost_log(print_r($e->getBody(), 1));
+          throw new Exception(print_r($recipients, 1) . ' -- ' . print_r($e->getBody(), 1) . ' -- ' . $e->getMessage());
+        }
+      }
+    }
+
+/*
+    try {
+
+    $response = $promise->wait();
+    // dsm($response->getStatusCode());
+    // dsm($response->getBody(), 'body');
+
+    }
+    catch (Exception $e) {
+      // Check the suppression list status
+ #     $status = $sparky->request('GET', 'suppression-list/' . , [
+ #       'limit' => '5',
+ #     ]);
+
+      throw new Exception($e->getMessage()); //  . ' -- [' . $e->getStatusCode() . '] ' . $e->getBody() . ' -- ' . $e->getAPIDescription() . ' -- ' . print_r($recipients, 1));
+    }
+*/
+
+  #  return $result;
   }
 
   /**

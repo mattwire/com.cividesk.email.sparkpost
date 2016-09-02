@@ -127,9 +127,9 @@ function sparkpost_civicrm_alterContent( &$content, $context, $tplName, &$object
 /**
  * Implementation of hook_civicrm_alterMailer
  */
-// Don't know why it does not autoload ...
-require_once 'Mail/Sparkpost.php';
 function sparkpost_civicrm_alterMailer(&$mailer, $driver, $params) {
+  // Don't know why it does not autoload ...
+  require_once 'Mail/Sparkpost.php';
   $mailer = new Mail_Sparkpost($params);
 }
 

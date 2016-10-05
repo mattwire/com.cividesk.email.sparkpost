@@ -78,6 +78,13 @@ class Mail_Sparkpost extends Mail {
       ),
     );
 
+    // Should we send via a dedicated IP pool?
+    $ip_pool = CRM_Sparkpost::getSetting('sparkpost_ipPool');
+    if (!empty($ip_pool)) {
+      $sp['options']['ip_pool'] = $ip_pool;
+    }
+
+    // Is this a CiviMail mailing or a transactional email?
     if (CRM_Utils_Array::value('X-CiviMail-Bounce', $headers)) {
       // Insert CiviMail header in the outgoing email's metadata
       $sp['metadata'] = array('X-CiviMail-Bounce' => CRM_Utils_Array::value("X-CiviMail-Bounce", $headers));
@@ -163,7 +170,8 @@ class Mail_Sparkpost extends Mail {
 
     foreach ($recipients as $recipientString) {
       // Best is to use the PEAR::Mail package to decapsulate as they have a class just for that!
-      $matches = Mail_RFC822::parseAddressList($recipientString);
+      $rfc822 = new Mail_RFC822($recipientString);
+      $matches = $rfc822->parseAddressList();
 
       foreach ($matches as $match) {
         $address = array();

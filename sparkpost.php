@@ -128,9 +128,9 @@ function sparkpost_civicrm_alterContent( &$content, $context, $tplName, &$object
  * Implementation of hook_civicrm_alterMailer
  */
 function sparkpost_civicrm_alterMailer(&$mailer, $driver, $params) {
-  // Don't know why it does not autoload ...
-  require_once 'Mail/Sparkpost.php';
-  $mailer = new Mail_Sparkpost($params);
+  $sparkpost = new Mail_Sparkpost($params);
+  $sparkpost->setBackupMailer($mailer);
+  $mailer = $sparkpost;
 }
 
 /**
@@ -182,6 +182,15 @@ function sparkpost_check_dependencies($display = TRUE) {
     }
   }
   return $messages;
+}
+
+/**
+ * Implementation of hook_civicrm_alterSettingsFolders
+ *
+ * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_alterSettingsFolders
+ */
+function sparkpost_civicrm_alterSettingsFolders(&$metaDataFolders = NULL) {
+  _sparkpost_civix_civicrm_alterSettingsFolders($metaDataFolders);
 }
 
 function sparkpost_log($message) {

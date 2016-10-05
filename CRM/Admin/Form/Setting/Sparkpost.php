@@ -38,7 +38,9 @@ class CRM_Admin_Form_Setting_Sparkpost extends CRM_Admin_Form_Setting {
     // Check dependencies and display error messages
     sparkpost_check_dependencies();
 
-    $this->addElement('password', 'apiKey', ts('API Key'), '', TRUE);
+    $this->add('password', 'sparkpost_apiKey', ts('API Key'), '', TRUE);
+    $this->add('text', 'sparkpost_ipPool', ts('IP pool'));
+    $this->addYesNo('sparkpost_useBackupMailer', ts('Use backup mailer'));
 
     $this->_testButtonName = $this->getButtonName('refresh', 'test');
 
@@ -70,8 +72,8 @@ class CRM_Admin_Form_Setting_Sparkpost extends CRM_Admin_Form_Setting {
    *   list of errors to be posted back to the form
    */
   public static function formRule($fields) {
-    if (empty($fields['apiKey'])) {
-      $errors['apiKey'] = 'You must enter an API key.';
+    if (empty($fields['sparkpost_apiKey'])) {
+      $errors['sparkpost_apiKey'] = 'You must enter an API key.';
     }
     return empty($errors) ? TRUE : $errors;
   }
@@ -88,7 +90,9 @@ class CRM_Admin_Form_Setting_Sparkpost extends CRM_Admin_Form_Setting {
     CRM_Utils_System::flushCache();
 
     $formValues = $this->controller->exportValues($this->_name);
-    CRM_Sparkpost::setSetting('apiKey', $formValues['apiKey']);
+    foreach (array('sparkpost_apiKey', 'sparkpost_ipPool', 'sparkpost_useBackupMailer') as $name) {
+      CRM_Sparkpost::setSetting($name, $formValues[$name]);
+    }
 
     $buttonName = $this->controller->getButtonName();
     // check if test button
@@ -114,26 +118,33 @@ class CRM_Admin_Form_Setting_Sparkpost extends CRM_Admin_Form_Setting {
       try {
         $response = CRM_Sparkpost::call("sending-domains/$domain");
       } catch (Exception $e) {
-        CRM_Core_Session::setStatus(ts('Could not check status for domain %1 (Exception %2).',
-          array(1 => $domain, 2 => $e->getMessage())), ts('SparkPost errors'), 'error');
-        return;
+        if (strpos($e->getMessage(), 'Invalid request') !== FALSE) {
+          $url = "https://app.sparkpost.com/account/sending-domains";
+          CRM_Core_Session::setStatus(ts('Domain %1 is not created and not verified in Sparkpost. Please follow instructions at <a href="%2">%2</a>.',
+            array(1 => $domain, 2 => $url)), ts('SparkPost error'), 'error');
+          return;
+        } else {
+          CRM_Core_Session::setStatus(ts('Could not check status for domain %1 (Exception %2).',
+            array(1 => $domain, 2 => $e->getMessage())), ts('SparkPost error'), 'error');
+          return;
+        }
       }
       if (!$response->results || !$response->results->status || !$response->results->status->ownership_verified) {
         $url = 'https://app.sparkpost.com/account/sending-domains';
-        CRM_Core_Session::setStatus(ts('The domain \'%1\' is not created or not verified. Please make sure you follow instructions at <a href="%2">%2</a>.',
-          array(1 => $domain, 2 => $url)), ts('SparkPost errors'), 'errors');
+        CRM_Core_Session::setStatus(ts('The domain \'%1\' is not verified. Please follow instructions at <a href="%2">%2</a>.',
+          array(1 => $domain, 2 => $url)), ts('SparkPost error'), 'errors');
         return;
       } else {
         CRM_Core_Session::setStatus(ts('The domain %1 is ready to send.', array(1 => $domain)), ts('SparkPost status'), 'info');
       }
 
-      $campaign = CRM_Sparkpost::getSetting('campaign');
+      $campaign = CRM_Sparkpost::getSetting('sparkpost_campaign');
       if (empty($campaign)) {
         // Get the id of (potentially) existing webhook
         try {
           $response = CRM_Sparkpost::call("webhooks");
         } catch (Exception $e) {
-          CRM_Core_Session::setStatus(ts('Could not list webhooks (%1).', array(1 => $e->getMessage())), ts('SparkPost errors'), 'error');
+          CRM_Core_Session::setStatus(ts('Could not list webhooks (%1).', array(1 => $e->getMessage())), ts('SparkPost error'), 'error');
           return;
         }
         // Define parameters for our webhook
@@ -155,11 +166,11 @@ class CRM_Admin_Form_Setting_Sparkpost extends CRM_Admin_Form_Setting {
         try {
           $response = CRM_Sparkpost::call('webhooks' . ($webhook_id ? "/$webhook_id" : ''), array(), $my_webhook);
         } catch (Exception $e) {
-          CRM_Core_Session::setStatus(ts('Could not install webhook (%1).', array(1 => $e->getMessage())), ts('SparkPost errors'), 'error');
+          CRM_Core_Session::setStatus(ts('Could not install webhook (%1).', array(1 => $e->getMessage())), ts('SparkPost error'), 'error');
           return;
         }
         if (!$response->results || !$response->results->id) {
-          CRM_Core_Session::setStatus(ts('Could not install/refresh webhook.'), ts('SparkPost errors'), 'error');
+          CRM_Core_Session::setStatus(ts('Could not install/refresh webhook.'), ts('SparkPost error'), 'error');
           return;
         } else {
           CRM_Core_Session::setStatus(ts('Webhook has been installed or refreshed.'), ts('SparkPost status'), 'info');

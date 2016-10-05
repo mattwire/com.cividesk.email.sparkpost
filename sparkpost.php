@@ -130,7 +130,7 @@ function sparkpost_civicrm_alterContent( &$content, $context, $tplName, &$object
 function sparkpost_civicrm_alterMailer(&$mailer, $driver, $params) {
   require_once 'Mail/Sparkpost.php';
   $sparkpost = new Mail_Sparkpost($params);
-  $sparkpost->setBackupMailer($mailer);
+  // $sparkpost->setBackupMailer($mailer);
   $mailer = $sparkpost;
 }
 

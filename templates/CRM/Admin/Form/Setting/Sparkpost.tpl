@@ -22,6 +22,8 @@
                         <span class="description">{ts}Only used if you have one or more dedicated IP addresses at SparkPost.{/ts}</span>
                     </td>
                 </tr>
+{* We do not recommend this option. *}
+{*
                 <tr class="crm-sparkpost-form-block-sparkpost_useBackupMailer">
                     <td class="label">{$form.sparkpost_useBackupMailer.label}</td>
                     <td>{$form.sparkpost_useBackupMailer.html}<br  />
@@ -30,6 +32,7 @@
                         </span>
                     </td>
                 </tr>
+*}
             </table>
         </fieldset>
     </div>

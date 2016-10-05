@@ -45,7 +45,7 @@ class Mail_Sparkpost extends Mail {
       }
     }
 
-    $api_key = CRM_Sparkpost::getSetting('apiKey');
+    $api_key = CRM_Sparkpost::getSetting('sparkpost_apiKey');
 
     if (empty($api_key)) {
       throw new Exception('No API key defined for SparkPost');

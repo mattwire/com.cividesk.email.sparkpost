@@ -34,6 +34,11 @@ class Mail_Sparkpost extends Mail {
   var $backupMailer;
   static $unavailable = false; // static because each hook_alterMailer creates a different mailer object
 
+  static $stats = array(
+    'count' => 0,
+    'mtime' => 0,
+  );
+
   /**
    * Sets a backup mailer
    */
@@ -100,16 +105,23 @@ class Mail_Sparkpost extends Mail {
       'email_rfc822' => $textHeaders . "\r\n\r\n" . $body,
     );
 
+$start = microtime(TRUE);
     try {
       $result = CRM_Sparkpost::call('transmissions', array(), $request_body);
     } catch (Exception $e) {
       if ($e->getCode() == CRM_Sparkpost::FALLBACK) {
         // Let's redirect this and all further sends to the backup mailer
-        Mail_Sparkpost::$unavailable = true;
+        self::$unavailable = TRUE;
         return $this->send($recipients, $headers, $body);
       }
       return new PEAR_Error($e->getMessage());
     }
+self::$stats['count']++;
+self::$stats['mtime'] += microtime(TRUE) - $start;
+if (self::$stats['count'] == 1000) {
+  sparkpost_log("Send 1,000 email in " . self::$stats['mtime'] . " seconds." . PHP_EOL);
+  self::$stats['count'] = self::$stats['mtime'] = 0;
+}
     return $result;
   }
 

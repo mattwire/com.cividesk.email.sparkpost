@@ -118,8 +118,8 @@ $start = microtime(TRUE);
     }
 self::$stats['count']++;
 self::$stats['mtime'] += microtime(TRUE) - $start;
-if (self::$stats['count'] == 1000) {
-  sparkpost_log("Send 1,000 email in " . self::$stats['mtime'] . " seconds." . PHP_EOL);
+if (self::$stats['count'] == 500) {
+  sparkpost_log("Send 500 email in " . self::$stats['mtime'] . " seconds." . PHP_EOL);
   self::$stats['count'] = self::$stats['mtime'] = 0;
 }
     return $result;

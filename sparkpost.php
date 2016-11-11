@@ -227,19 +227,16 @@ function sparkpost_log($message) {
 }
 
 function sparkpost_civicrm_alterMailParams(&$params, $context = NULL) {
-  if ($context != 'civimail') {//Create meta data for transactional email
+  // Create meta data for transactional email
+  if ($context != 'civimail') {
     $mail = new CRM_Mailing_DAO_Mailing();
-    $mail->subject = "***All Transactional Emails Through Sparkpost***";
+    $mail->subject = "***All Transactional Emails Through SparkPost***";
     $mail->url_tracking = TRUE;
     $mail->forward_replies = FALSE;
     $mail->auto_responder = FALSE;
     $mail->open_tracking = TRUE;
-    if ($mail->find(TRUE)) {
-      $jobCLassName = 'CRM_Mailing_DAO_MailingJob';
-      if (version_compare('4.4alpha1', CRM_Core_Config::singleton()->civiVersion) > 0) {
-        $jobCLassName = 'CRM_Mailing_DAO_Job';
-      }
 
+    if ($mail->find(TRUE)) {
       if (isset($params['contact_id']) && !empty($params['contact_id'])) {//We could bring contact_id in params by customizing activity bao file
         $contactId = CRM_Utils_Array::value('contact_id', $params);
       } else if (isset($params['contactId']) && !empty($params['contactId'])) {//Contribution/Event confirmation
@@ -256,7 +253,7 @@ function sparkpost_civicrm_alterMailParams(&$params, $context = NULL) {
       
       if ($contactId) {
         $eventQueueParams = array(
-          'job_id' => CRM_Core_DAO::getFieldValue($jobCLassName, $mail->id, 'id', 'mailing_id'),
+          'job_id' => CRM_Core_DAO::getFieldValue('CRM_Mailing_DAO_MailingJob', $mail->id, 'id', 'mailing_id'),
           'contact_id' => $contactId,
           'email_id' => CRM_Core_DAO::getFieldValue('CRM_Core_DAO_Email', $contactId, 'id', 'contact_id'),
         );

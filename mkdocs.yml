@@ -1,4 +1,5 @@
 site_name: Sparkpost
+repo_url: https://github.com/cividesk/com.cividesk.email.sparkpost
 theme: material
 pages:
 - About: index.md

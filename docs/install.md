@@ -1,10 +1,12 @@
-# Requirements
+# Installation
+
+## Requirements
 
 This extension requires:
 * CiviCRM 4.4, 4.6 or higher
 * PHP version 5.4 or higher, with the curl extension enabled
 
-# Installation instructions
+## Installation instructions
 
 * Configure CiviCRM extensions parameters (if not done already)
   * go to Administer >> System Settings >> Directories, set the CiviCRM Extensions Directory to a folder that is writable by your web server process

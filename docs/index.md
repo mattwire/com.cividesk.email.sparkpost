@@ -1,11 +1,14 @@
 # SparkPost email extension for CiviCRM
 
 This extension allows CiviCRM to send emails and process bounces through the SparkPost service.
+It currently is one of the [Top 10](https://stats.civicrm.org/?tab=sites) most used extensions for CiviCRM.
 
 It was designed with the following goals and/or features:
+* integrate as seamlessly as possible within CiviCRM, neatly replacing other email options
+* be fully documented, with the documentation published on the official CiviCRM documentation website
+* be well maintained on at least the LTS and latest versions of CiviCRM
 * be trivial to install and configure, even for the novice users
 * self-configure when possible and check that everything is appropriately setup
-* integrate as seamlessly as possible within CiviCRM, neatly replacing other email options
 * be nimble and fast, and in particular use the REST API rather than SMTP, and use real-time callbacks
 * have a 'service provider' mode in which the same SparkPost account can be used for multiple clients
 * accurate processing of bounces with in-depth analysis and translation of all bounce codes

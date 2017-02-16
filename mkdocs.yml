@@ -1,0 +1,7 @@
+site_name: Sparkpost
+theme: material
+pages:
+- About: index.md
+- Installation: install.md
+- Known issues: issues.md
+- Supporting: supporting.md

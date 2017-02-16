@@ -3,6 +3,7 @@
 ## Requirements
 
 This extension requires:
+
 * CiviCRM 4.4, 4.6 or higher
 * PHP version 5.4 or higher, with the curl extension enabled
 

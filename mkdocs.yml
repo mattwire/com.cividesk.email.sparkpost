@@ -3,6 +3,7 @@ repo_url: https://github.com/cividesk/com.cividesk.email.sparkpost
 theme: material
 markdown_extensions:
   - admonition
+  - pymdownx.magiclink
 pages:
 - About: index.md
 - Installation: install.md

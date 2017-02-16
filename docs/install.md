@@ -26,7 +26,7 @@ This extension requires:
         1. **Administer > Communications > Organization Address and Contact Info**,
         1. and **Administer > CiviMail > From Email Address**.
 
-        So if you define 'info@example.org' as a sending address in CiviCRM, you would need to create and verify the domain 'example.org' in SparkPost.
+        So if you define `info@example.org` as a sending address in CiviCRM, you would need to create and verify the domain `example.org` in SparkPost.
 
     1. Create an API key at: https://app.sparkpost.com/account/credentials
 

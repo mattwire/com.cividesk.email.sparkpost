@@ -1,6 +1,8 @@
 site_name: Sparkpost
 repo_url: https://github.com/cividesk/com.cividesk.email.sparkpost
 theme: material
+markdown_extensions:
+  - admonition
 pages:
 - About: index.md
 - Installation: install.md

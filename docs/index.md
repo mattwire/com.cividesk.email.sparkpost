@@ -15,4 +15,4 @@ It was designed with the following goals and/or features:
 
 It sends both transactional and CiviMail emails through the SparkPost service. Bounces are processed through a callback (no need for an email account dedicated to bounce processing), but CiviCRM only processes bounces for CiviMail-originated emails. We are planning to extend bounce processing to transactional emails in the short term.
 
-Opens and click-throughs as still tracked by CiviCRM as there is no added-value in having these tracked by SparkPost.
+Opens and click-throughs are still tracked by CiviCRM as there is no added-value in having these tracked by SparkPost.

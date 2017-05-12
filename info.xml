@@ -21,7 +21,7 @@
     <ver>4.6</ver>
     <ver>4.7</ver>
   </compatibility>
-  <comments>As always, read the documentation first! Once the extension is enabled, go to Administer &gt;&gt; System Settings &gt;&gt; Outboud Email (SparkPost) to configure and send a test email.</comments>
+  <comments>As always, read the documentation first! Once the extension is enabled, go to Administer &gt;&gt; System Settings &gt;&gt; Outbound Email (SparkPost) to configure and send a test email.</comments>
   <civix>
     <namespace>CRM/Sparkpost</namespace>
   </civix>

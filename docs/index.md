@@ -4,6 +4,7 @@ This extension allows CiviCRM to send emails and process bounces through the Spa
 It currently is one of the [Top 10](https://stats.civicrm.org/?tab=sites) most used extensions for CiviCRM.
 
 It was designed with the following goals and/or features:
+
 * integrate as seamlessly as possible within CiviCRM, neatly replacing other email options
 * be fully documented, with the documentation published on the official CiviCRM documentation website
 * be well maintained on at least the LTS and latest versions of CiviCRM

@@ -5,7 +5,7 @@
   <description>This extension allows CiviCRM to send emails and process bounces through the SparkPost service.</description>
   <urls>
     <url desc="Main Extension Page">https://github.com/cividesk/com.cividesk.email.sparkpost</url>
-    <url desc="Documentation">https://github.com/cividesk/com.cividesk.email.sparkpost</url>
+    <url desc="Documentation">https://docs.civicrm.org/sparkpost/en/latest/</url>
     <url desc="Support">https://github.com/cividesk/com.cividesk.email.sparkpost/issues?state=open</url>
   </urls>
   <license>AGPL-3.0</license>

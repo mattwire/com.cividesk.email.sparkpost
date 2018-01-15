@@ -70,11 +70,13 @@ class Mail_Sparkpost extends Mail {
 
     list($from, $textHeaders) = $headerElements;
 
+    // NB: we disable any type of SparkPost tracking, because a few sources may
+    // flag the links as spam. CiviCRM also does tracking anyway.
     $sp = array(
       'content' => array(),
       'options' => array(
-        'open_tracking' => TRUE,  // Even though this will be done by CiviCRM for bulk mailing, If we want to process transactional and to process open and click event by sparkpost
-        'click_tracking' => TRUE, // same as above
+        'open_tracking' => FALSE,
+        'click_tracking' => FALSE,
       ),
     );
 

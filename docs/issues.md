@@ -8,8 +8,8 @@ So if there are any chances you might send more than 10,000 emails in any 24 hou
 
 ## Sending domains
 
-Sparkpost will reject any emails send from an unauthorized domain (ie. not added through their console and validated with SPF/DKIM). This can happen in CiviCRM when:
-* your staff sometimes use their perosnal email addresses to send email (rather than an organiation's email address').
+Sparkpost will reject any emails sent from an unauthorized domain (ie. not added through their console and validated with SPF/DKIM). This can happen in CiviCRM when:
+* your staff sometimes use their personal email addresses to send email (rather than from an organisation's email address').
 * emails sent from a Forward Mailing link are sent From: the email of the person that sends the email - this is a core issue, see [#21](https://github.com/cividesk/com.cividesk.email.sparkpost/issues/21) and [CRM-18458](https://issues.civicrm.org/jira/browse/CRM-18458).
 
 In order to alleviate these issues, it is highly recommended that you use and setup a backup mailer. This backup mailer will be used whenever Sparkpost cannot/refuses to send. The backup mailer is configured at the bottom of the Sparkpost configuration screen.

@@ -87,8 +87,8 @@ class CRM_Sparkpost_Page_callback extends CRM_Core_Page {
         if (preg_match($rpRegex, $civimail_bounce_id, $matches)) {
           list($match, $action, $job_id, $event_queue_id, $hash) = $matches;
           
-          require_once 'Mail/Sparkpost.php';
-          list($mailing_id, $mailing_name ) = Mail_Sparkpost::getMailing($job_id);
+          require_once 'Mail/sparkpost.php';
+          list($mailing_id, $mailing_name ) = Mail_sparkpost::getMailing($job_id);
 
           if (!$mailing_id) {
             CRM_Core_Error::debug_var('No mailing found hence skiping in SparkPost extension call back', $matches);

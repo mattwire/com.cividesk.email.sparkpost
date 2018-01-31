@@ -33,7 +33,7 @@ use SparkPost\SparkPost;
 use GuzzleHttp\Client;
 use Http\Adapter\Guzzle6\Client as GuzzleAdapter;
 
-class Mail_Sparkpost extends Mail {
+class Mail_sparkpost extends Mail {
   /**
    * Send an email
    */
@@ -136,9 +136,9 @@ class Mail_Sparkpost extends Mail {
       foreach ($body['errors'] as $key => $val) {
         // "recipient address suppressed due to customer policy"
         if ($val['code'] == 1902) {
-          $email = $sp['recipients'][0]['address']['email'];
-          $status = $sparky->request('GET', 'suppression-list/' . $email);
-          sparkpost_log(print_r($status->getBody(), 1));
+          # $email = $sp['recipients'][0]['address']['email'];
+          # $status = $sparky->request('GET', 'suppression-list/' . $email);
+          # sparkpost_log(print_r($status->getBody(), 1));
         }
         else {
           sparkpost_log(print_r($e->getBody(), 1));

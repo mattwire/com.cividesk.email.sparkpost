@@ -41,6 +41,7 @@ class CRM_Admin_Form_Setting_Sparkpost extends CRM_Admin_Form_Setting {
     $this->add('password', 'sparkpost_apiKey', ts('API Key'), '', TRUE);
     $this->add('text', 'sparkpost_ipPool', ts('IP pool'));
     $this->addYesNo('sparkpost_useBackupMailer', ts('Use backup mailer'));
+    $this->add('text', 'sparkpost_customCallbackUrl', ts('Custom callback URL'));
 
     $this->_testButtonName = $this->getButtonName('refresh', 'test');
 
@@ -97,7 +98,7 @@ class CRM_Admin_Form_Setting_Sparkpost extends CRM_Admin_Form_Setting {
     CRM_Utils_System::flushCache();
 
     $formValues = $this->controller->exportValues($this->_name);
-    foreach (array('sparkpost_apiKey', 'sparkpost_ipPool', 'sparkpost_useBackupMailer') as $name) {
+    foreach (array('sparkpost_apiKey', 'sparkpost_ipPool', 'sparkpost_useBackupMailer', 'sparkpost_customCallbackUrl') as $name) {
       CRM_Sparkpost::setSetting($name, $formValues[$name]);
     }
 
@@ -143,6 +144,47 @@ class CRM_Admin_Form_Setting_Sparkpost extends CRM_Admin_Form_Setting {
         return;
       } else {
         CRM_Core_Session::setStatus(ts('The domain %1 is ready to send.', array(1 => $domain)), ts('SparkPost status'), 'info');
+      }
+
+      $campaign = CRM_Sparkpost::getSetting('sparkpost_campaign');
+      if (empty($campaign)) {
+        // Get the id of (potentially) existing webhook
+        try {
+          $response = CRM_Sparkpost::call("webhooks");
+        } catch (Exception $e) {
+          CRM_Core_Session::setStatus(ts('Could not list webhooks (%1).', array(1 => $e->getMessage())), ts('SparkPost error'), 'error');
+          return;
+        }
+        // Define parameters for our webhook
+        $my_webhook = array(
+          'name' => 'CiviCRM (com.cividesk)',
+          'target' => CRM_Sparkpost::getSetting('sparkpost_customCallbackUrl') ?
+            CRM_Sparkpost::getSetting('sparkpost_customCallbackUrl') :
+            CRM_Utils_System::url('civicrm/sparkpost/callback', NULL, TRUE, NULL, FALSE, TRUE),
+          'auth_type' => 'none',
+          // Just bounce-related events as click and open tracking are still done by CiviCRM
+          'events' => array('bounce', 'spam_complaint', 'policy_rejection'),
+        );
+        // Has this webhook already been created?
+        $webhook_id = FALSE;
+        foreach ($response->results as $webhook) {
+          if ($webhook->name == $my_webhook['name']) {
+            $webhook_id = $webhook->id;
+          }
+        }
+        // Install our webhook (or refresh it if already there)
+        try {
+          $response = CRM_Sparkpost::call('webhooks' . ($webhook_id ? "/$webhook_id" : ''), array(), $my_webhook);
+        } catch (Exception $e) {
+          CRM_Core_Session::setStatus(ts('Could not install webhook (%1).', array(1 => $e->getMessage())), ts('SparkPost error'), 'error');
+          return;
+        }
+        if (!$response->results || !$response->results->id) {
+          CRM_Core_Session::setStatus(ts('Could not install/refresh webhook.'), ts('SparkPost error'), 'error');
+          return;
+        } else {
+          CRM_Core_Session::setStatus(ts('Webhook has been installed or refreshed.'), ts('SparkPost status'), 'info');
+        }
       }
 
       if (!trim($toDisplayName)) {

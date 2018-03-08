@@ -22,7 +22,7 @@ return array(
     'group' => 'com.cividesk.email.sparkpost',
     'name' => 'sparkpost_customCallbackUrl',
     'type' => 'String',
-    'html_type' => 'password',
+    'html_type' => 'text',
     'default' => null,
     'add' => '4.4',
     'is_domain' => 1,

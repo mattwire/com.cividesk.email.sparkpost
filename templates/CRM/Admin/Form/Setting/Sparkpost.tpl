@@ -30,6 +30,13 @@
                         </span>
                     </td>
                 </tr>
+                <tr class="crm-sparkpost-form-block-sparkpost_customCallbackUrl">
+                    <td class="label">{$form.sparkpost_customCallbackUrl.label}</td>
+                    <td>{$form.sparkpost_customCallbackUrl.html}<br  />
+                        <span class="description">{ts 1=$smtpURL}A custom callback URL is useful when your site is behind a proxy (like CiviProxy). Leave this blank to use the default URL.{/ts}
+                        </span>
+                    </td>
+                </tr>
             </table>
         </fieldset>
     </div>

@@ -41,6 +41,7 @@ class CRM_Admin_Form_Setting_Sparkpost extends CRM_Admin_Form_Setting {
     $this->add('password', 'sparkpost_apiKey', ts('API Key'), '', TRUE);
     $this->add('text', 'sparkpost_ipPool', ts('IP pool'));
     $this->addYesNo('sparkpost_useBackupMailer', ts('Use backup mailer'));
+    $this->add('text', 'sparkpost_customCallbackUrl', ts('Custom callback URL'));
 
     $this->_testButtonName = $this->getButtonName('refresh', 'test');
 
@@ -90,7 +91,7 @@ class CRM_Admin_Form_Setting_Sparkpost extends CRM_Admin_Form_Setting {
     CRM_Utils_System::flushCache();
 
     $formValues = $this->controller->exportValues($this->_name);
-    foreach (array('sparkpost_apiKey', 'sparkpost_ipPool', 'sparkpost_useBackupMailer') as $name) {
+    foreach (array('sparkpost_apiKey', 'sparkpost_ipPool', 'sparkpost_useBackupMailer', 'sparkpost_customCallbackUrl') as $name) {
       CRM_Sparkpost::setSetting($name, $formValues[$name]);
     }
 
@@ -150,7 +151,9 @@ class CRM_Admin_Form_Setting_Sparkpost extends CRM_Admin_Form_Setting {
         // Define parameters for our webhook
         $my_webhook = array(
           'name' => 'CiviCRM (com.cividesk)',
-          'target' => CRM_Utils_System::url('civicrm/sparkpost/callback', NULL, TRUE, NULL, FALSE, TRUE),
+          'target' => CRM_Sparkpost::getSetting('sparkpost_customCallbackUrl') ?
+            CRM_Sparkpost::getSetting('sparkpost_customCallbackUrl') :
+            CRM_Utils_System::url('civicrm/sparkpost/callback', NULL, TRUE, NULL, FALSE, TRUE),
           'auth_type' => 'none',
           // Just bounce-related events as click and open tracking are still done by CiviCRM
           'events' => array('bounce', 'spam_complaint', 'policy_rejection'),

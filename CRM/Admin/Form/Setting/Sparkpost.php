@@ -216,6 +216,9 @@ class CRM_Admin_Form_Setting_Sparkpost extends CRM_Admin_Form_Setting {
 
       if (!is_a($result, 'PEAR_Error')) {
         CRM_Core_Session::setStatus($testMailStatusMsg . ts('Your %1 settings are correct. A test email has been sent to your email address.', array(1 => 'SparkPost')), ts("Mail Sent"), "success");
+
+        // Specific to SymbioTIC (see sparkpostrouter extension)
+        CRM_Core_Session::setStatus(ts('Do not forget to configure the bounce routing.'), '', 'warning');
       }
       else {
         $message = CRM_Utils_Mail::errorMessage($mailer, $result);

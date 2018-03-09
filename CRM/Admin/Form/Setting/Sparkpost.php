@@ -49,6 +49,13 @@ class CRM_Admin_Form_Setting_Sparkpost extends CRM_Admin_Form_Setting {
     $buttons = $this->getElement('buttons')->getElements();
     $buttons[] = $this->createElement('submit', $this->_testButtonName, ts('Save & Send Test Email'), array('crm-icon' => 'mail-closed'));
     $this->getElement('buttons')->setElements($buttons);
+
+    // Get the logged in user's email address
+    $session = CRM_Core_Session::singleton();
+    $userID = $session->get('userID');
+    list($toDisplayName, $toEmail, $toDoNotEmail) = CRM_Contact_BAO_Contact::getContactDetails($userID);
+
+    $this->assign('sparkpost_test_email', $toEmail);
   }
 
   /**

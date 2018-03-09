@@ -22,18 +22,9 @@
                         <span class="description">{ts}Only used if you have one or more dedicated IP addresses at SparkPost.{/ts}</span>
                     </td>
                 </tr>
-{* We do not recommend this option. *}
-{*
-                <tr class="crm-sparkpost-form-block-sparkpost_useBackupMailer">
-                    <td class="label">{$form.sparkpost_useBackupMailer.label}</td>
-                    <td>{$form.sparkpost_useBackupMailer.html}<br  />
-                        <span class="description">{ts 1=$smtpURL}You can define a backup mailer <a href='%1'>here</a>.{/ts}
-                            {ts}It will be used if Sparkpost cannot send emails (unverified sending domain, sending limits exceeded, ...).{/ts}
-                        </span>
-                    </td>
-                </tr>
-*}
             </table>
+
+            <p>{ts 1=$sparkpost_test_email}Test emails will be sent to: %1{/ts}</p>
         </fieldset>
     </div>
     <div class="spacer"></div>

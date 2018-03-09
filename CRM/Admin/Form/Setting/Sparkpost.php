@@ -145,45 +145,6 @@ class CRM_Admin_Form_Setting_Sparkpost extends CRM_Admin_Form_Setting {
         CRM_Core_Session::setStatus(ts('The domain %1 is ready to send.', array(1 => $domain)), ts('SparkPost status'), 'info');
       }
 
-      $campaign = CRM_Sparkpost::getSetting('sparkpost_campaign');
-      if (empty($campaign)) {
-        // Get the id of (potentially) existing webhook
-        try {
-          $response = CRM_Sparkpost::call("webhooks");
-        } catch (Exception $e) {
-          CRM_Core_Session::setStatus(ts('Could not list webhooks (%1).', array(1 => $e->getMessage())), ts('SparkPost error'), 'error');
-          return;
-        }
-        // Define parameters for our webhook
-        $my_webhook = array(
-          'name' => 'CiviCRM (com.cividesk)',
-          'target' => CRM_Utils_System::url('civicrm/sparkpost/callback', NULL, TRUE, NULL, FALSE, TRUE),
-          'auth_type' => 'none',
-          // Just bounce-related events as click and open tracking are still done by CiviCRM
-          'events' => array('bounce', 'spam_complaint', 'policy_rejection', 'open', 'click'),
-        );
-        // Has this webhook already been created?
-        $webhook_id = FALSE;
-        foreach ($response->results as $webhook) {
-          if ($webhook->name == $my_webhook['name']) {
-            $webhook_id = $webhook->id;
-          }
-        }
-        // Install our webhook (or refresh it if already there)
-        try {
-          $response = CRM_Sparkpost::call('webhooks' . ($webhook_id ? "/$webhook_id" : ''), array(), $my_webhook);
-        } catch (Exception $e) {
-          CRM_Core_Session::setStatus(ts('Could not install webhook (%1).', array(1 => $e->getMessage())), ts('SparkPost error'), 'error');
-          return;
-        }
-        if (!$response->results || !$response->results->id) {
-          CRM_Core_Session::setStatus(ts('Could not install/refresh webhook.'), ts('SparkPost error'), 'error');
-          return;
-        } else {
-          CRM_Core_Session::setStatus(ts('Webhook has been installed or refreshed.'), ts('SparkPost status'), 'info');
-        }
-      }
-
       if (!trim($toDisplayName)) {
         $toDisplayName = $toEmail;
       }

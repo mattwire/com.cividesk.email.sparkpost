@@ -168,8 +168,9 @@ function sparkpost_civicrm_check(&$messages) {
   $sparkpost_messages = sparkpost_check_dependencies(FALSE);
 
   // We need to add the severity (only for 4.7+)
-  $info = civicrmVersion();
-  if (version_compare($info['version'], '4.7') >= 0) {
+  $version = CRM_Utils_System::version();
+
+  if (version_compare($version, '4.7') >= 0) {
     foreach ($sparkpost_messages as &$message) {
       $message->setLevel(5); // Cannot use \Psr\Log\LogLevel::CRITICAL as this is not in 4.6 code base
     }

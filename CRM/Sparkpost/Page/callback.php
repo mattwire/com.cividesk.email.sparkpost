@@ -75,90 +75,89 @@ class CRM_Sparkpost_Page_callback extends CRM_Core_Page {
         }
 
         // Extract CiviMail parameters from header value
-        $dao             = new CRM_Core_DAO_MailSettings;
-        $dao->domain_id  = CRM_Core_Config::domainID();
-        $dao->is_default = TRUE;
-        if ( $dao->find(true) ) {
-          $rpRegex = '/^' . preg_quote($dao->localpart) . '(b|c|e|o|r|u|m)\.(\d+)\.(\d+)\.([0-9a-f]{16})/';
-        } else {
-          $rpRegex = '/^(b|c|e|o|r|u|m)\.(\d+)\.(\d+)\.([0-9a-f]{16})/';
+        $header = CRM_Sparkpost::getPartsFromBounceID($civimail_bounce_id);
+
+        if (empty($header)) {
+          Civi::log()->error('Failed to parse the email bounce ID {header}', [
+            'header' => $civimail_bounce_id,
+          ]);
+          continue;
         }
-        $matches = array();
-        if (preg_match($rpRegex, $civimail_bounce_id, $matches)) {
-          list($match, $action, $job_id, $event_queue_id, $hash) = $matches;
-          
-          require_once 'Mail/sparkpost.php';
-          list($mailing_id, $mailing_name ) = Mail_sparkpost::getMailing($job_id);
 
-          if (!$mailing_id) {
-            CRM_Core_Error::debug_var('No mailing found hence skiping in SparkPost extension call back', $matches);
-            continue;
-          }
+        require_once 'Mail/sparkpost.php';
+        list($mailing_id, $mailing_name ) = Mail_sparkpost::getMailing($header['job_id']);
 
-          $params = array(
-            'job_id' => $job_id,
-            'event_queue_id' => $event_queue_id,
-            'hash' => $hash,
-          );
+        if (!$mailing_id) {
+          Civi::log()->warning('No mailing found for {matches} hence skiping in SparkPost extension call back', [
+            'matches' => $matches,
+          ]);
+          continue;
+        }
 
-          // Was SparkPost able to classify the message?
-          if (in_array($event->type, array(
-            'spam_complaint',
-            'policy_rejection'
-          ))) {
-            $params['bounce_type_id'] = CRM_Utils_Array::value('Spam', $this->_civicrm_bounce_types);
-            $params['bounce_reason'] = ($event->reason ? $event->reason : 'Message has been flagged as Spam by the recipient');
-          }
-          elseif ($event->type == 'bounce') {
-            $sparkpost_bounce = CRM_Utils_Array::value($event->bounce_class, $this->_sparkpost_bounce_types);
-            $params['bounce_type_id'] = CRM_Utils_Array::value($sparkpost_bounce[3], $this->_civicrm_bounce_types);
-            $params['bounce_reason'] = $event->reason;
-          } 
-          elseif ($event->type == 'open' || $event->type == 'click') {
-            switch ($event->type) {
-              case 'open':
-                if ($action == 'b') {//Civi Mailing do not process as done by CiviCRM
-                  break;
-                }
-                $oe = new CRM_Mailing_Event_BAO_Opened();
-                $oe->event_queue_id = $event_queue_id;
-                $oe->time_stamp = date('YmdHis', $event->timestamp);
-                $oe->save();
+        $params = array(
+          'job_id' => $header['job_id'],
+          'event_queue_id' => $header['event_queue_id'],
+          'hash' => $header['hash'],
+        );
+
+        // Was SparkPost able to classify the message?
+        if (in_array($event->type, array(
+          'spam_complaint',
+          'policy_rejection'
+        ))) {
+          $params['bounce_type_id'] = CRM_Utils_Array::value('Spam', $this->_civicrm_bounce_types);
+          $params['bounce_reason'] = ($event->reason ? $event->reason : 'Message has been flagged as Spam by the recipient');
+        }
+        elseif ($event->type == 'bounce') {
+          $sparkpost_bounce = CRM_Utils_Array::value($event->bounce_class, $this->_sparkpost_bounce_types);
+          $params['bounce_type_id'] = CRM_Utils_Array::value($sparkpost_bounce[3], $this->_civicrm_bounce_types);
+          $params['bounce_reason'] = $event->reason;
+        }
+        elseif ($event->type == 'open' || $event->type == 'click') {
+          switch ($event->type) {
+            case 'open':
+              if ($action == 'b') {//Civi Mailing do not process as done by CiviCRM
                 break;
+              }
+              $oe = new CRM_Mailing_Event_BAO_Opened();
+              $oe->event_queue_id = $header['event_queue_id'];
+              $oe->time_stamp = date('YmdHis', $event->timestamp);
+              $oe->save();
+              break;
 
-              case 'click':
-                if ($action == 'b') {//Civi Mailing do not process as done by CiviCRM
-                  break;
-                }
-                $tracker = new CRM_Mailing_BAO_TrackableURL();
-                $tracker->url = $event->target_link_url;
-                $tracker->mailing_id = $mailing_id;
-                if (!$tracker->find(TRUE)) {
-                  $tracker->save();
-                }
-                $open = new CRM_Mailing_Event_BAO_TrackableURLOpen();
-                $open->event_queue_id = $event_queue_id;
-                $open->trackable_url_id = $tracker->id;
-                $open->time_stamp = date('YmdHis', $event->timestamp);
-                $open->save();
+            case 'click':
+              if ($action == 'b') {//Civi Mailing do not process as done by CiviCRM
                 break;
-            }
+              }
+              $tracker = new CRM_Mailing_BAO_TrackableURL();
+              $tracker->url = $event->target_link_url;
+              $tracker->mailing_id = $mailing_id;
+              if (!$tracker->find(TRUE)) {
+                $tracker->save();
+              }
+              $open = new CRM_Mailing_Event_BAO_TrackableURLOpen();
+              $open->event_queue_id = $header['event_queue_id'];
+              $open->trackable_url_id = $tracker->id;
+              $open->time_stamp = date('YmdHis', $event->timestamp);
+              $open->save();
+              break;
           }
-          if (CRM_Utils_Array::value('bounce_type_id', $params)) {  
-            CRM_Mailing_Event_BAO_Bounce::create($params);
-          }
-          elseif (in_array($event->type, array(
-            'spam_complaint',
-            'policy_rejection',
-            'bounce'
-          ))) {
-            // Sparkpost was not, so let CiviCRM have a go at classifying it
-            $params['body'] = $event->raw_reason;
-            $result = civicrm_api3('Mailing', 'event_bounce', $params);
-          }
+        }
+        if (CRM_Utils_Array::value('bounce_type_id', $params)) {
+          CRM_Mailing_Event_BAO_Bounce::create($params);
+        }
+        elseif (in_array($event->type, array(
+          'spam_complaint',
+          'policy_rejection',
+          'bounce'
+        ))) {
+          // Sparkpost was not, so let CiviCRM have a go at classifying it
+          $params['body'] = $event->raw_reason;
+          $result = civicrm_api3('Mailing', 'event_bounce', $params);
         }
       }
     }
+
     CRM_Utils_System::civiExit();
   }
 }

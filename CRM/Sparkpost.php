@@ -61,6 +61,47 @@ class CRM_Sparkpost {
   }
 
   /**
+   * Returns the CiviCRM localpart for the current domain.
+   */
+  static function getDomainLocalpart() {
+    $dao = new CRM_Core_DAO_MailSettings;
+    $dao->domain_id = CRM_Core_Config::domainID();
+    $dao->is_default = TRUE;
+
+    if ($dao->find(TRUE)) {
+      return $dao->localpart;
+    }
+
+    return NULL;
+  }
+
+  /**
+   *
+   */
+  static function getPartsFromBounceID($civimail_bounce_id) {
+    // Extract CiviMail parameters from header value
+    // NB: the localpart might be empty, but the regexp should still work.
+    $localpart = CRM_Sparkpost::getDomainLocalpart();
+    $rpRegex = '/^' . preg_quote($localpart) . '(b|c|e|o|r|u|m)\.(\d+)\.(\d+)\.([0-9a-f]{16})/';
+
+    if (preg_match($rpRegex, $civimail_bounce_id, $matches)) {
+      return [
+        'action' => $matches[1],
+        'job_id' => $matches[2],
+        'event_queue_id' => $matches[3],
+        'hash' => $matches[4],
+      ];
+    }
+
+    Civi::log()->warning('SparkPost getPartsFromBounceID failed with {bounce_id} and localpart {localpart}', [
+      'bounce_id' => $civimail_bounce_id,
+      'localpart' => $localpart,
+    ]);
+
+    return NULL;
+  }
+
+  /**
    * Calls the SparkPost REST API v1
    * @param $path    Method path
    * @param $params  Method parameters (translated as GET arguments)
@@ -114,10 +155,9 @@ class CRM_Sparkpost {
     $response = json_decode($data);
     if (isset($response->errors) && is_array($response->errors)) {
       // Log this error for debugging purposes
-      sparkpost_log('==== ERROR in CRM_Sparkpost::call() ====');
-      sparkpost_log(print_r($response, TRUE));
-      sparkpost_log(print_r($content, TRUE));
-      sparkpost_log(PHP_EOL);
+      Civi::log()->error('==== ERROR in CRM_Sparkpost::call() ====');
+      Civi::log()->error(print_r($response, TRUE));
+      Civi::log()->error(print_r($content, TRUE));
 
       $error = reset($response->errors);
 

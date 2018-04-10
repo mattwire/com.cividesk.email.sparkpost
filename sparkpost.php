@@ -222,11 +222,6 @@ function sparkpost_civicrm_alterSettingsFolders(&$metaDataFolders = NULL) {
   _sparkpost_civix_civicrm_alterSettingsFolders($metaDataFolders);
 }
 
-function sparkpost_log($message) {
-  $config = CRM_Core_Config::singleton();
-  file_put_contents($config->configAndLogDir . 'sparkpost_log', $message . PHP_EOL, FILE_APPEND);
-}
-
 function sparkpost_civicrm_alterMailParams(&$params, $context = NULL) {
   // Create meta data for transactional email
   if ($context != 'civimail') {

@@ -135,16 +135,44 @@ class Mail_sparkpost extends Mail {
     catch (Exception $e) {
       $body = $e->getBody();
 
+      // https://www.sparkpost.com/docs/tech-resources/extended-error-codes/
       foreach ($body['errors'] as $key => $val) {
         // "recipient address suppressed due to customer policy"
         if ($val['code'] == 1902) {
           # $email = $sp['recipients'][0]['address']['email'];
           # $status = $sparky->request('GET', 'suppression-list/' . $email);
           # sparkpost_log(print_r($status->getBody(), 1));
+          Civi::log()->warning('SPARKPOST transmission warning [' . $sp['recipients'][0]['address']['email'] . '] suppressed due to customer policy: ' . print_r($e->getBody(), 1));
+        }
+        elseif ($val['code'] == 5002) {
+          // Invalid recipient
+          Civi::log()->warning('SPARKPOST invalid recipient was ignored [' . $sp['recipients'][0]['address']['email'] . '] suppressed due to customer policy: ' . print_r($e->getBody(), 1));
+
+          if (!empty($sp['metadata']['X-CiviMail-Bounce'])) {
+            $civimail_bounce_id = $sp['metadata']['X-CiviMail-Bounce'];
+            $header = CRM_Sparkpost::getPartsFromBounceID($civimail_bounce_id);
+
+            if (empty($header)) {
+              Civi::log()->error('Failed to parse the email bounce ID {header}', [
+                'header' => $civimail_bounce_id,
+              ]);
+              return;
+            }
+
+            $params = [
+              'job_id' => $header['job_id'],
+              'event_queue_id' => $header['event_queue_id'],
+              'hash' => $header['hash'],
+              'bounce_type_id' => 10, // Invalid recipient
+              'bounce_reason' => $e->getBody(),
+            ];
+
+            CRM_Mailing_Event_BAO_Bounce::create($params);
+          }
         }
         else {
-          sparkpost_log(print_r($e->getBody(), 1));
-          throw new Exception(print_r($recipients, 1) . ' -- ' . print_r($e->getBody(), 1) . ' -- ' . $e->getMessage());
+          Civi::log()->error('SPARKPOST transmission error: ' . print_r($sp['recipients'], 1) . ' --- ' . print_r($e->getBody(), 1));
+          throw new Exception(print_r($sp, 1) . ' -- ' . print_r($e->getBody(), 1) . ' -- ' . $e->getMessage());
         }
       }
     }

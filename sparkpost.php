@@ -200,3 +200,41 @@ function sparkpost_log($message) {
   $config = CRM_Core_Config::singleton();
   file_put_contents($config->configAndLogDir . 'sparkpost_log', $message . PHP_EOL, FILE_APPEND);
 }
+
+
+/**
+ * Implementation of hook_civicrm_pre
+ */
+function sparkpost_civicrm_pre( $op, $objectName, $objectId, &$objectRef ) {
+  /*
+   * When email is updated for contact, check on hold flag is changed?
+   * If changed (unchecked) then remove same email from sparkpost suppression list
+   */
+  global $resetHoldFlag;
+  $resetHoldFlag = FALSE;
+  if ($objectName == 'Email' && $op == 'edit' && $objectId && empty($objectRef['on_hold'])) {
+    $resultEmail = civicrm_api3('Email', 'getsingle', array(
+      'id' => $objectId,
+    ));
+    if ($resultEmail['on_hold'] == 1) {
+      $resetHoldFlag = TRUE;
+    }
+  }
+}
+
+/**
+ * Implementation of hook_civicrm_post
+ */
+function sparkpost_civicrm_post( $op, $objectName, $objectId, &$objectRef ) {
+  /*
+   * Previous on hold flag = 1 and Current on hold flag = 0 then remove from sparkpost suppression list
+   */
+  global $resetHoldFlag;
+  if ($objectName == 'Email' && $op == 'edit' && $resetHoldFlag && !empty($objectRef->email)) {
+    try {
+      $result = CRM_Sparkpost::call('suppression-list/' . $objectRef->email);
+    } catch (Exception $e) {
+      CRM_Core_Session::setStatus($e->getMessage(), "Sparkpost error", 'error');
+    }
+  }
+}

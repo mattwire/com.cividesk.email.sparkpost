@@ -8,5 +8,6 @@ pages:
 - About: index.md
 - Installation: install.md
 - Bounce processing: bounce-processing.md
+- Suppression list: suppression-list.md
 - Known issues: issues.md
 - Supporting: supporting.md

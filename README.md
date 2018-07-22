@@ -1,5 +1,18 @@
 # SparkPost email extension for CiviCRM
 
+This is a Coop SymbioTIC fork of the excellent SparkPost extension by CiviDesk:  
+https://github.com/cividesk/com.cividesk.email.sparkpost
+
+This is a slightly experimental fork that uses the SparkPost PHP library and Guzzle,
+instead of curl, which seems to improve performance. We have also done some tweaking
+to simplify our setup process. For example, since SparkPost sends all events to all
+webhooks (for all subaccounts), we use [SparkPostRouter](https://github.com/coopsymbiotic/coop.symbiotic.sparkpostrouter).
+
+We strongly encourage you to use the official CiviDesk extension rather than this one,
+unless you are hosted by [Coop SymbioTIC](https://www.symbiotic.coop/en), of course! ;-)
+
+Original README follows:
+
 This extension allows CiviCRM to send emails and process bounces through the SparkPost service.
 
 It was designed to seamlessly integrate in the CiviCRM UI, be fully documented and well maintained, be trivial to install and configure, be nimble and fast and accurately process bounces.

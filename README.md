@@ -1,5 +1,7 @@
 # SparkPost email extension for CiviCRM
 
+This is based on the Coop SymbioTIC fork with a couple of extra patches.
+
 This is a Coop SymbioTIC fork of the excellent SparkPost extension by CiviDesk:  
 https://github.com/cividesk/com.cividesk.email.sparkpost
 

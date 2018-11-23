@@ -116,7 +116,7 @@ class CRM_Sparkpost_Page_callback extends CRM_Core_Page {
         elseif ($event->type == 'open' || $event->type == 'click') {
           switch ($event->type) {
             case 'open':
-              if ($action == 'b') {//Civi Mailing do not process as done by CiviCRM
+              if ($header['action'] == 'b') {//Civi Mailing do not process as done by CiviCRM
                 break;
               }
               $oe = new CRM_Mailing_Event_BAO_Opened();
@@ -126,7 +126,7 @@ class CRM_Sparkpost_Page_callback extends CRM_Core_Page {
               break;
 
             case 'click':
-              if ($action == 'b') {//Civi Mailing do not process as done by CiviCRM
+              if ($header['action'] == 'b') {//Civi Mailing do not process as done by CiviCRM
                 break;
               }
               $tracker = new CRM_Mailing_BAO_TrackableURL();
@@ -172,7 +172,7 @@ class CRM_Sparkpost_Page_callback extends CRM_Core_Page {
         ))) {
           // Sparkpost was not, so let CiviCRM have a go at classifying it
           $params['body'] = $event->raw_reason;
-          $result = civicrm_api3('Mailing', 'event_bounce', $params);
+          civicrm_api3('Mailing', 'event_bounce', $params);
         }
       }
     }

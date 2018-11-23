@@ -168,7 +168,7 @@ class CRM_Admin_Form_Setting_Sparkpost extends CRM_Admin_Form_Setting {
         // Has this webhook already been created?
         $webhook_id = FALSE;
         foreach ($response->results as $webhook) {
-          if ($webhook->name == $my_webhook['name']) {
+          if ($webhook->target == $my_webhook['target']) {
             $webhook_id = $webhook->id;
           }
         }

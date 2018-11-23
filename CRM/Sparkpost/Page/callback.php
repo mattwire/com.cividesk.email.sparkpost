@@ -78,19 +78,19 @@ class CRM_Sparkpost_Page_callback extends CRM_Core_Page {
         $header = CRM_Sparkpost::getPartsFromBounceID($civimail_bounce_id);
 
         if (empty($header)) {
-          Civi::log()->error('Failed to parse the email bounce ID {header}', [
+          /**Civi::log()->error('Failed to parse the email bounce ID {header}', [
             'header' => $civimail_bounce_id,
-          ]);
+          ]);*/
           continue;
         }
 
         require_once 'Mail/sparkpost.php';
-        list($mailing_id, $mailing_name ) = Mail_sparkpost::getMailing($header['job_id']);
+        list($mailing_id, $mailing_name) = Mail_sparkpost::getMailing($header['job_id']);
 
         if (!$mailing_id) {
-          Civi::log()->warning('No mailing found for {matches} hence skiping in SparkPost extension call back', [
-            'matches' => $matches,
-          ]);
+          /**Civi::log()->warning('No mailing found for {matches} hence skipping in SparkPost extension call back', [
+            'matches' => $mailing_id,
+          ]);*/
           continue;
         }
 

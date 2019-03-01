@@ -160,7 +160,7 @@ class CRM_Sparkpost {
     if (isset($response->errors) && is_array($response->errors)) {
       // Log this error for debugging purposes
       Civi::log()->error('==== ERROR in CRM_Sparkpost::call() ====');
-      Civi::log()->error(print_r($response, TRUE));
+      Civi::log()->error(print_r($response->errors, TRUE));
       Civi::log()->error(print_r($content, TRUE));
 
       $error = reset($response->errors);

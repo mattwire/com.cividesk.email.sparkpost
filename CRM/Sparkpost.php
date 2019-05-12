@@ -93,10 +93,10 @@ class CRM_Sparkpost {
       ];
     }
 
-    Civi::log()->warning('SparkPost getPartsFromBounceID failed with {bounce_id} and localpart {localpart}', [
+    /*Civi::log()->warning('SparkPost getPartsFromBounceID failed with {bounce_id} and localpart {localpart}', [
       'bounce_id' => $civimail_bounce_id,
       'localpart' => $localpart,
-    ]);
+    ]);*/
 
     return NULL;
   }
